@@ -20,6 +20,9 @@ class Data extends Component {
     }
   }
 
+  /** scales embeddings to values between [-20, 20]
+   * @param {Array} embeddings are the coordinates, has form [[x,y],...]
+   */
   scaleEmbeddings(embeddings) {
     let xs = embeddings.map(e => Math.abs(e[0]))
     let ys = embeddings.map(e => Math.abs(e[1]))
@@ -39,8 +42,9 @@ class Data extends Component {
       .then(response => response.json())
       .then(mnist_embeddings => {
         let scaled_embeddings = this.scaleEmbeddings(mnist_embeddings)
+        let sliced_scaled_embeddings = scaled_embeddings.splice(0,3000)
         this.setState({
-          mnist_embeddings: scaled_embeddings,
+          mnist_embeddings: sliced_scaled_embeddings,
         })
       })
     fetch(`${process.env.PUBLIC_URL}/md08_umap_mnist_embeddings.json`)
