@@ -97,10 +97,10 @@ class Layout extends Component {
 
   render() {
     let {
-      mnist_embeddings,
-      tsne_mnist_embeddings,
-      md08_umap_mnist_embeddings,
-      mnist_labels,
+      embeddings,
+      data,
+      label_kmedoids,
+      label_kmeans,
       algorithm_options,
       algorithm_embedding_keys,
     } = this.props
@@ -201,7 +201,8 @@ class Layout extends Component {
             color_array={color_array}
             setSidebarCanvas={this.setSidebarCanvas}
             hover_index={hover_index}
-            mnist_labels={mnist_labels}
+            label_kmeans={label_kmeans}
+            label_kmedoids={label_kmedoids}
             toggleAbout={this.toggleAbout}
             algorithm_options={algorithm_options}
             algorithm_choice={algorithm_choice}
@@ -212,10 +213,10 @@ class Layout extends Component {
           <Projection
             width={main_style.width}
             height={main_style.height}
-            mnist_embeddings={mnist_embeddings}
-            tsne_mnist_embeddings={tsne_mnist_embeddings}
-            md08_umap_mnist_embeddings={md08_umap_mnist_embeddings}
-            mnist_labels={mnist_labels}
+            embeddings={embeddings}
+            data={data}
+            label_kmeans={label_kmeans}
+            label_kmedoids={label_kmedoids}
             color_array={color_array}
             sidebar_ctx={sidebar_ctx}
             sidebar_image_size={sidebar_image_size}

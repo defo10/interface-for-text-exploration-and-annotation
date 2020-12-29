@@ -18,7 +18,8 @@ class Sidebar extends Component {
       grem,
       p,
       hover_index,
-      mnist_labels,
+      label_kmeans,
+      label_kmedoids,
       color_array,
       algorithm_options,
       algorithm_choice,
@@ -75,7 +76,7 @@ class Sidebar extends Component {
               <div
                 style={{
                   background: hover_index
-                    ? `rgb(${color_array[mnist_labels[hover_index]].join(',')})`
+                    ? `rgb(${color_array[label_kmedoids[hover_index]].join(',')})`
                     : 'transparent',
                   color: hover_index ? '#000' : '#fff',
                   padding: p(grem / 4, grem / 2),
@@ -85,7 +86,7 @@ class Sidebar extends Component {
                 }}
               >
                 <div>Label:</div>
-                {hover_index ? <div>{mnist_labels[hover_index]}</div> : null}
+                {hover_index ? <div>{label_kmedoids[hover_index]}</div> : null}
               </div>
               <div
                 style={{
