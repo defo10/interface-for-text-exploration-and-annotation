@@ -3,6 +3,8 @@ import Sidebar from './Sidebar'
 import Projection from './Projection'
 import About from './About'
 import * as _ from 'lodash'
+import SearchBar from "material-ui-search-bar"
+
 
 // padding constructor
 function p(tb, lr) {
@@ -29,21 +31,39 @@ class Layout extends Component {
       ww: null,
       wh: null,
       sidebar_height: null,
-      hover_index: null,
-      show_about: null,
-      algorithm_choice: 0,
+      selected_datum: null,
+      embeddingChoiceIndex: 0, // supervised or unsupervised
+      labelChoice: Object.getOwnPropertyNames(this.props.labels[0])[0],
+      searchInput: "",
+      searchResultIndices: {} // for faster lookup, as object of form {'id':position, ...} with position being rank in results
     }
     this.sidebar_ctx = null
     this.setSize = _.debounce(this.setSize.bind(this), 200)
-    this.checkHash = this.checkHash.bind(this)
-    this.setSidebarCanvas = this.setSidebarCanvas.bind(this)
-    this.toggleAbout = this.toggleAbout.bind(this)
-    this.selectAlgorithm = this.selectAlgorithm.bind(this)
+    this.selectEmbedding = this.selectEmbedding.bind(this)
+    this.setSelectedDatum = this.setSelectedDatum.bind(this)
+    this.selectLabel = this.selectLabel.bind(this)
+    this.updateSearchResultIndices = this.updateSearchResultIndices.bind(this)
+    this.setEmbeddingIndex = this.setEmbeddingIndex.bind(this)
   }
 
-  selectAlgorithm(v) {
-    let i = this.props.algorithm_options.indexOf(v)
-    this.setState({ algorithm_choice: i })
+  setEmbeddingIndex(i) {
+    this.setState({
+      embeddingChoiceIndex: i
+    })
+  }
+
+  /**
+   * 
+   * @param {int} i is the index of the embeddings chosen
+   */
+  selectEmbedding(i) {
+    return (i == 1) ? this.props.embeddings_supervised : this.props.embeddings_unsupervised
+  }
+
+  selectLabel(label) {
+    this.setState({
+      labelChoice: label
+    })
   }
 
   setSize() {
@@ -53,89 +73,73 @@ class Layout extends Component {
     if (this.sidebar_ctx) this.sidebar_ctx.imageSmoothingEnabled = false
   }
 
-  setSidebarCanvas(canvas) {
-    let ctx = canvas.getContext('2d')
-    ctx.imageSmoothingEnabled = false
-    this.sidebar_ctx = ctx
-  }
-
-  toggleAbout(state) {
-    if (state === true) {
-      window.history.pushState(null, 'About UMAP Explorer', '#about')
-      this.setState({ show_about: true })
-    } else if (state === false) {
-      window.history.pushState(null, 'UMAP Explorer', window.location.pathname)
-      this.setState({ show_about: false })
-    }
-  }
-
   setHoverIndex(hover_index) {
     this.setState({ hover_index: hover_index })
   }
 
   componentWillMount() {
     this.setSize()
-    this.checkHash()
-  }
-
-  checkHash() {
-    if (window.location.hash && window.location.hash === '#about') {
-      this.setState({ show_about: true })
-    } else {
-      this.setState({ show_about: false })
-    }
   }
 
   componentDidMount() {
     window.addEventListener('resize', this.setSize)
-    window.addEventListener('popstate', this.checkHash)
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.setSize)
   }
 
+  haveEmbeddingsChanged(prevProps) {
+    return prevProps.embeddings !== this.props.embeddings || prevProps.embeddings.length !== this.props.embeddings.length
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+  }
+
+  /**
+   * sets the selected datum which causes it to show in the sidebar WIP
+   * @param {int} i is the index of the selected datum
+   */
+  setSelectedDatum(i) {
+    this.setState({
+      selected_datum: i,
+    })
+  }
+
+  updateSearchResultIndices(newVal) {
+    if (newVal.length < 1) return
+    let searchResults = this.props.search_index.search(newVal)
+    let searchResultsCleaned = searchResults.map((result, i) => [result.ref, i])
+    this.setState({
+      searchInput: newVal,
+      searchResultIndices: Object.fromEntries(searchResultsCleaned),
+      selected_datum: null, // empty sidebar
+    })
+  }
+
   render() {
-    let {
-      embeddings,
-      data,
-      label_kmedoids,
-      label_kmeans,
-      algorithm_options,
-      algorithm_embedding_keys,
-    } = this.props
-    let {
-      ww,
-      wh,
-      sidebar_height,
-      hover_index,
-      show_about,
-      algorithm_choice,
-    } = this.state
+    let { data, labels, algorithm_options,
+      algorithm_embedding_keys, } = this.props
+
+    let { ww, wh, sidebar_height, hover_index, show_about,
+      selected_datum, searchResultIndices } = this.state
     let sidebar_ctx = this.sidebar_ctx
 
     let line_height = 1.5
 
     let sidebar_style = {
-      position: 'absolute',
-      left: 0,
-      top: 0,
-      height: '100vh',
-      overflow: 'auto',
-      background: '#222',
-      display: 'flex',
-      flexDirection: 'column',
+      position: 'absolute', left: 0, top: 0,
+      height: '100vh', overflow: 'auto', background: '#222',
+      display: 'flex', flexDirection: 'column',
     }
     let main_style = {
-      position: 'relative',
-      height: '100vh',
-      background: '#111',
-      overflow: 'hidden',
+      position: 'relative', height: '100vh',
+      background: '#111', overflow: 'hidden',
     }
 
     let sidebar_image_size, sidebar_orientation
     let font_size = 16
-    if (ww < 800) {
+    if (ww < 800) { // media-query mobile
       font_size = 14
       sidebar_style = {
         ...sidebar_style,
@@ -146,16 +150,14 @@ class Layout extends Component {
         bottom: 0,
       }
       main_style = { width: ww, height: wh - sidebar_height }
-      sidebar_image_size = font_size * line_height * 3
       sidebar_orientation = 'horizontal'
-    } else if (ww < 800 + 600) {
+    } else if (ww < 800 + 600) { // media-query small desktop
       let scaler = 200 + (300 - 200) * ((ww - 800) / 600)
       font_size = 14 + 2 * ((ww - 800) / 600)
       sidebar_style = {
         ...sidebar_style,
         width: scaler,
       }
-      sidebar_image_size = sidebar_style.width
       main_style = {
         ...main_style,
         width: ww - scaler,
@@ -163,18 +165,18 @@ class Layout extends Component {
         height: wh,
       }
       sidebar_orientation = 'vertical'
-    } else {
+    } else { // media-query desktop
+      let sidebar_width = 300
       sidebar_style = {
         ...sidebar_style,
-        width: 300,
+        width: sidebar_width,
       }
       main_style = {
         ...main_style,
-        width: ww - 300,
-        left: 300,
+        width: ww - sidebar_width,
+        left: sidebar_width,
         height: wh,
       }
-      sidebar_image_size = sidebar_style.width
       sidebar_orientation = 'vertical'
     }
 
@@ -187,6 +189,12 @@ class Layout extends Component {
 
     return ww !== null ? (
       <div style={general_style}>
+        <div style={{ position: 'absolute', zIndex: '10', left: '50%', marginLeft: '-10vw', right: '50%', top: '4vh', width: '30vw' }}>
+          <SearchBar
+            value={this.state.searchInput}
+            onChange={this.updateSearchResultIndices}
+          />
+        </div>
         <div
           style={sidebar_style}
           ref={sidebar_mount => {
@@ -195,34 +203,44 @@ class Layout extends Component {
         >
           <Sidebar
             sidebar_orientation={sidebar_orientation}
-            sidebar_image_size={sidebar_image_size}
             grem={grem}
             p={p}
             color_array={color_array}
-            setSidebarCanvas={this.setSidebarCanvas}
             hover_index={hover_index}
-            label_kmeans={label_kmeans}
-            label_kmedoids={label_kmedoids}
             toggleAbout={this.toggleAbout}
             algorithm_options={algorithm_options}
-            algorithm_choice={algorithm_choice}
-            selectAlgorithm={this.selectAlgorithm}
+            embeddingChoiceIndex={this.state.embeddingChoiceIndex}
+            setEmbeddingIndex={this.setEmbeddingIndex}
+            selected_datum={selected_datum}
+            data={data}
+            labels={labels}
+            labelChoice={this.state.labelChoice}
+            selectLabel={this.selectLabel}
           />
         </div>
         <div style={main_style}>
+          <div style={{ position: 'absolute', left: '32px', bottom: '32px', }}>
+            <h6 style={{display:'inline'}}>Data Points to show: </h6>
+            <input name="numDataPoints" type="text" pattern="[0-9]*" 
+              style={{width:'4em', display:'inline'}}
+              value={this.props.embeddings_size}
+              onChange={this.props.updateEmbeddings}
+            ></input>
+          </div>
           <Projection
             width={main_style.width}
             height={main_style.height}
-            embeddings={embeddings}
+            embeddings={this.selectEmbedding(this.state.embeddingChoiceIndex)}
             data={data}
-            label_kmeans={label_kmeans}
-            label_kmedoids={label_kmedoids}
             color_array={color_array}
             sidebar_ctx={sidebar_ctx}
             sidebar_image_size={sidebar_image_size}
-            setHoverIndex={this.setHoverIndex.bind(this)}
             algorithm_embedding_keys={algorithm_embedding_keys}
-            algorithm_choice={algorithm_choice}
+            setSelectedDatum={this.setSelectedDatum}
+            selected_datum={selected_datum}
+            labels={labels}
+            labelChoice={this.state.labelChoice}
+            searchResultIndices={searchResultIndices}
           />
         </div>
         {show_about ? (
@@ -230,8 +248,8 @@ class Layout extends Component {
         ) : null}
       </div>
     ) : (
-      <div style={{ padding: '1rem' }}>Loading layout...</div>
-    )
+        <div style={{ padding: '1rem' }}>Loading layout...</div>
+      )
   }
 }
 
