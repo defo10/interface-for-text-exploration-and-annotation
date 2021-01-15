@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import Comment from './SidebarElements/Comment'
 import Separator from './SidebarElements/Separator'
 import Select from './SidebarElements/Select'
+import ClusterOverview from './SidebarElements/ClusterOverview/ClusterOverview'
+
 
 // if you want to change order, also change selectEmbedding in Layout.js
 const dimReductionChoice = ["Don't use clustering results", 'Use clustering results']
@@ -99,6 +101,12 @@ class Sidebar extends Component {
               onChange={this.handleLabelChoice}
               value={this.state.labelChoice}
               list_of_options={labelsNames}
+            />
+            <Separator sidebar_orientation={sidebar_orientation} />
+
+            <ClusterOverview 
+              data={data}
+              labels={labels}
             />
 
             <Separator sidebar_orientation={sidebar_orientation} />

@@ -4,13 +4,10 @@ import * as _ from 'lodash'
 import * as d3 from 'd3'
 import * as lunr from 'lunr'
 
-import { connect } from 'react-redux';
-import {
-  renameLabel, setLabelOfId, setState,
-  selectEmbeddings, selectData, selectLabels
-} from './Store.js';
+import { Provider } from 'react-redux'
+import store from './Store'
 
-class Data extends Component {
+export default class Data extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -155,7 +152,6 @@ class Data extends Component {
     return this.state.embeddings_supervised && this.state.embeddings_unsupervised && this.state.data ? (
       <Layout
         {...this.state}
-        algorithm_embedding_keys={algorithm_embedding_keys}
         updateEmbeddings={this.updateEmbeddings}
       />
     ) : (
@@ -164,6 +160,7 @@ class Data extends Component {
   }
 }
 
+/*
 const mapStateToProps = state => {
   return {
     embeddings: selectEmbeddings(state),
@@ -176,7 +173,8 @@ const mapDispatchToProps = {
   setState
 }
 
+
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(Data)
+)(Data)*/

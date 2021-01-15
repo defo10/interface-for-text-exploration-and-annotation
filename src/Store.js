@@ -9,14 +9,14 @@ export const slice = createSlice({
     },
     reducers: {
         renameLabel: (state, action) => {
-            state?.labels.forEach(
+            state.labels?.forEach(
                 (label) => (label === action.payload.oldLabel)
                     ? label
                     : action.payload.newLabel
             )
         },
         setLabelOfId: (state, action) => {
-            state?.labels[action.payload.id] = action.payload.label
+            state.labels[action.payload.id] = action.payload.label
         },
         setState: (state, action) => {
             state = action.payload.state
