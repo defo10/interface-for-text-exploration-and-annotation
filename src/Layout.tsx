@@ -7,8 +7,9 @@ import * as _ from 'lodash'
 import SearchBar from "material-ui-search-bar"
 import { PropsFromData, Label } from './Data'
 import { least } from 'd3'
-import { CircularProgress } from '@material-ui/core'
 import SlidersParamter from './ProjectionElements/Sliders'
+import DragBar, { DRAGBAR_GUTTER } from './DragBar'
+
 
 // padding constructor
 function p(tb: number, lr: number) {
@@ -25,6 +26,7 @@ export type LayoutState = {
   searchResultIndices: object,
   /** is the cluster of which user wants a detail view */
   selectedCluster: string | null,
+  sidebar_width: number | null,
 }
 
 class Layout extends Component<PropsFromData, LayoutState> {
@@ -37,6 +39,7 @@ class Layout extends Component<PropsFromData, LayoutState> {
       ww: null,
       wh: null,
       sidebar_height: null,
+      sidebar_width: null,
       selected_datum: null,
       searchInput: "",
       searchResultIndices: {},
@@ -58,8 +61,8 @@ class Layout extends Component<PropsFromData, LayoutState> {
   setSize() {
     this.setState({ ww: window.innerWidth, wh: window.innerHeight })
     let sidebar_height = this.sidebar_mount.offsetHeight
-    this.setState({ sidebar_height: sidebar_height })
-    if (this.sidebar_ctx) this.sidebar_ctx.imageSmoothingEnabled = false
+    let sidebar_width = window.innerWidth / 3
+    this.setState({ sidebar_height: sidebar_height, sidebar_width: sidebar_width })
   }
 
   componentWillMount() {
@@ -115,17 +118,16 @@ class Layout extends Component<PropsFromData, LayoutState> {
       background: '#111', overflow: 'hidden',
     }
 
-    let sidebar_image_size, sidebar_orientation
+    let sidebar_orientation
     let font_size = 16
-    let sidebar_width = this.state.ww! / 3
     sidebar_style = {
       ...sidebar_style,
-      width: sidebar_width,
+      width: this.state.sidebar_width,
     }
     main_style = {
       ...main_style,
-      width: this.state.ww! - sidebar_width,
-      left: sidebar_width,
+      width: this.state.ww! - (this.state.sidebar_width || 0),
+      left: this.state.sidebar_width,
       height: this.state.wh!,
     }
     sidebar_orientation = 'vertical'
