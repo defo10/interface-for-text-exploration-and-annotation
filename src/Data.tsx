@@ -69,8 +69,8 @@ type State = {
   /** this has actually all coordinates, unlike allCoordinates,
    * which has a sample for all parameters */
   allCoordinatesFull: NumNeighbors | null,
-  /** samples to show for all coordinate parameters */
-  allCoordinates: NumNeighbors | null,
+  /** samples to show for coordinate parameters */
+  allCoordinates: Coordinate[] | null,
   coordinatesParameters: {
     numNeighborsParameter: ParameterNumNeighbors,
     minDistParameter: ParameterMinDist,
@@ -84,12 +84,13 @@ type State = {
   /** is an array of cluster names to show on the projection */
   clustersToShow: string[],
   clusters: Cluster,
+  /** the coordinate of the comment the user hovers over, or null if not hovering */
+  hoveredCommentCoordinate: Coordinate | null,
 }
 
 export type PropsFromData = {
   /** reloads as many coordinates that are shown in Projection as specified in e */
   reloadCoordinatesWithSize: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>,
-  getSelectedCoordinates: () => Coordinate[],
   setSelectedCoordinates: (numNeighbors: ParameterNumNeighbors, minDist: ParameterMinDist) => void,
   /**
    * 
@@ -101,10 +102,10 @@ export type PropsFromData = {
    * clustersToShow.
    * Make sure to handle all lower lying variables, e.g. selectedCluster,
    * yourself.
-   * @param oldLabel
+   * @param oldLabels
    * @param newLabel 
    */
-  renameLabel: (oldLabel: string, newLabel: string) => void,
+  renameLabels: (oldLabels: string[], newLabel: string) => void,
   /** 
    * adds new entry to dataChanged
    * if entry with same i property already exists, then first remove that.
@@ -112,7 +113,12 @@ export type PropsFromData = {
    * updates clusters state too
    */
   pushToDataChanged: (newDataChange: DataChanged) => void,
-  [key: string]: any
+  /**
+   * sets hoveredCommentCoordinate to the coordinate associated with
+   * comment_index, or null of comment_index is null
+   */
+  setHoveredCommentCoordinate: (comment_index: number | null) => void,
+  [key: string]: any,
 } & State
 
 
@@ -134,14 +140,29 @@ export default class Data extends Component<any, State> {
       searchIndex: null,
       clustersToShow: [],
       clusters: {},
-      dataChanged: []
+      dataChanged: [],
+      hoveredCommentCoordinate: null,
     }
     this.reloadCoordinatesWithSize = this.reloadCoordinatesWithSize.bind(this)
-    this.getSelectedCoordinates = this.getSelectedCoordinates.bind(this)
     this.setSelectedCoordinates = this.setSelectedCoordinates.bind(this)
     this.setClustersToShow = this.setClustersToShow.bind(this)
-    this.renameLabel = this.renameLabel.bind(this)
+    this.renameLabels = this.renameLabels.bind(this)
     this.pushToDataChanged = this.pushToDataChanged.bind(this)
+    this.setHoveredCommentCoordinate = this.setHoveredCommentCoordinate.bind(this)
+  }
+
+  setHoveredCommentCoordinate(comment_index: number | null) {
+    if (!comment_index) {
+      this.setState({
+        hoveredCommentCoordinate: null
+      })
+      return
+    }
+    if (!this.state.allCoordinatesFull) return
+    const allComments = this.state.allCoordinatesFull[this.state.coordinatesParameters.numNeighborsParameter][this.state.coordinatesParameters.minDistParameter]
+    this.setState({
+      hoveredCommentCoordinate: allComments![comment_index]
+    })
   }
 
   pushToDataChanged(newData: DataChanged) {
@@ -171,19 +192,17 @@ export default class Data extends Component<any, State> {
     })
   }
 
-  renameLabel(oldLabel: string, newLabel: string) {
+  renameLabels(oldLabels: string[], newLabel: string) {
     // rename in clusterToShow
-    const index_oldLabel = this.state.clustersToShow.indexOf(oldLabel)
     const newClustersToShow = this.state.clustersToShow.map(
-      (el, i) => (i === index_oldLabel) ? newLabel : el
+      (el, i) => oldLabels.includes(el) ? newLabel : el
     )
 
     // rename in labels
     const labels_new = this.state.labels!.map(
       (label) => {
-        if (label.label_kmedoids == oldLabel) {
-          const new_label: Label = { label_kmedoids: newLabel }
-          return new_label
+        if (oldLabels.includes(label.label_kmedoids)) {
+          return { label_kmedoids: newLabel } as Label
         }
         return label
       }
@@ -191,12 +210,27 @@ export default class Data extends Component<any, State> {
 
     // rename in clusters
     let clusters_new: Cluster = { ...this.state.clusters }
-    clusters_new[newLabel] = this.state.clusters[oldLabel]
-    delete clusters_new[oldLabel]
+    let didMerge = false
+    for (const oldLabel of oldLabels) {
+
+      const isMerging = clusters_new[newLabel]
+      if (isMerging) { // merge if new already exists
+        didMerge = true
+        clusters_new[newLabel] = {
+          medoid: clusters_new[newLabel].medoid,
+          representatives: [...clusters_new[oldLabel].representatives, ...clusters_new[newLabel].representatives],
+          size: clusters_new[oldLabel].size + clusters_new[newLabel].size,
+          quality: -1
+        }
+      } else { // rename else
+        clusters_new[newLabel] = {...this.state.clusters[oldLabel]}
+      }
+      delete clusters_new[oldLabel]
+    }
 
     // rename in dataChanged
     let dataChanged_new = this.state.dataChanged.map(el =>
-      (el.newLabel.label_kmedoids === oldLabel)
+      (oldLabels.includes(el.newLabel.label_kmedoids))
         ? { ...el, newLabel: { label_kmedoids: newLabel } }
         : el
     )
@@ -206,13 +240,32 @@ export default class Data extends Component<any, State> {
       labels: labels_new,
       clusters: clusters_new,
       dataChanged: dataChanged_new
+    }, () => {
+      if (didMerge) this.calc_quality()
+    })
+  }
+
+  updateSelectedCoordinates() {
+    if (!this.state.allCoordinatesFull) {
+      console.log('allCoordinates is null')
+      return []
+    }
+
+    const numNeighbors = this.state.coordinatesParameters.numNeighborsParameter
+    const minDist = this.state.coordinatesParameters.minDistParameter
+
+    const rand_indices = this.getRandomIndices(this.state.labels!, this.state.clustersToShow, this.state.coordinates_to_show)
+    const coordinates = rand_indices.map(i => this.state.allCoordinatesFull![numNeighbors][minDist]![i])
+
+    this.setState({
+      allCoordinates: coordinates
     })
   }
 
   setClustersToShow(clusters: string[]) {
     this.setState({
       clustersToShow: clusters
-    })
+    }, this.updateSelectedCoordinates)
   }
 
   /** unlike getSelectedCoordinates, this returns all coordinates,
@@ -228,25 +281,13 @@ export default class Data extends Component<any, State> {
     return this.state.allCoordinatesFull[numNeighbors][minDist] || []
   }
 
-  getSelectedCoordinates() {
-    if (!this.state.allCoordinates) {
-      console.log('allCoordinates is null')
-      return []
-    }
-    const numNeighbors = this.state.coordinatesParameters.numNeighborsParameter
-    const minDist = this.state.coordinatesParameters.minDistParameter
-    return this.state.allCoordinates[numNeighbors][minDist] || []
-  }
-
   setSelectedCoordinates(numNeighbors: ParameterNumNeighbors, minDist: ParameterMinDist) {
-    if (numNeighbors === this.state.coordinatesParameters.numNeighborsParameter
-      && minDist === this.state.coordinatesParameters.minDistParameter) return // skip if no change
     this.setState({
       coordinatesParameters: {
         numNeighborsParameter: numNeighbors,
         minDistParameter: minDist
       }
-    }, () => this.loadCoordinates(this.state.coordinates_to_show)) // then update svg points
+    }, this.updateSelectedCoordinates) // then update svg points
   }
 
   /**
@@ -285,13 +326,18 @@ export default class Data extends Component<any, State> {
    * https://stackoverflow.com/questions/19269545/how-to-get-a-number-of-random-elements-from-an-array
    * 
    * @param {*} arr the original giving the shape
+   * @param clustersToShow is an array of clusters to pick from
    * @param {*} n how many to pick from
    */
-  getRandomIndices(arr: any[], n: number) {
-    const indices_arr = Array.from(Array(arr.length).keys()) // why so difficult, js?
+  getRandomIndices(arr: any[], clustersToShow: string[], n: number) {
+    let indices_arr = Array.from(Array(arr.length).keys()) // why so difficult, js?
 
-    if (n > arr.length * 2 / 3) {
-      console.log('WARNING: n is close to length of arr, making it difficult to pick random elements')
+    indices_arr = indices_arr.filter(i => {
+      if (!this.state.labels) return false
+      return clustersToShow.includes(this.state.labels[i].label_kmedoids)
+    })
+
+    if (n > indices_arr.length * 4 / 5) {
       return indices_arr
     }
 
@@ -313,12 +359,6 @@ export default class Data extends Component<any, State> {
    * @param howMany how many to numbers to pick from all clusters to show
    */
   async loadCoordinates(howMany: number) {
-    var all_coordinates_samples: NumNeighbors = {
-      '2': { '0.1': null, '0.2': null, '0.5': null, '0.9': null },
-      '5': { '0.1': null, '0.2': null, '0.5': null, '0.9': null },
-      '10': { '0.1': null, '0.2': null, '0.5': null, '0.9': null },
-      '50': { '0.1': null, '0.2': null, '0.5': null, '0.9': null },
-    }
     var all_coordinates_full: NumNeighbors = {
       '2': { '0.1': null, '0.2': null, '0.5': null, '0.9': null },
       '5': { '0.1': null, '0.2': null, '0.5': null, '0.9': null },
@@ -329,39 +369,24 @@ export default class Data extends Component<any, State> {
       for (let min_dist of min_dists_arr) { // and over all its min_dist variants
 
         let scaled_coordinates: Coordinate[] = []
-
-        // all coordinates already in memory -> skip fetching
-        if (!all_coordinates_full[num_neighbors][min_dist]) {
-          const fetched = await fetch(`${process.env.PUBLIC_URL}/coordinates/coordinates_supervised.${num_neighbors}.${min_dist}.json`)
-          const coordinates: Coordinate[] = await fetched.json()
-          scaled_coordinates = this.scaleEmbeddings(coordinates)
-          all_coordinates_full[num_neighbors][min_dist] = scaled_coordinates
-        } else {
-          scaled_coordinates = all_coordinates_full[num_neighbors][min_dist]!
-        }
-
-        // only run once at first startup, then update iff have to show more or less points
-        if (!this.random_indices || this.random_indices.length !== howMany)
-          this.random_indices = this.getRandomIndices(scaled_coordinates, howMany)
-
-        const random_coordinates = this.random_indices.map((i) => scaled_coordinates[i])
-        all_coordinates_samples[num_neighbors][min_dist] = random_coordinates
+        const fetched = await fetch(`${process.env.PUBLIC_URL}/coordinates/coordinates_supervised.${num_neighbors}.${min_dist}.json`)
+        const coordinates: Coordinate[] = await fetched.json()
+        scaled_coordinates = this.scaleEmbeddings(coordinates)
+        all_coordinates_full[num_neighbors][min_dist] = scaled_coordinates
       }
     }
 
     return this.setState({
       allCoordinatesFull: all_coordinates_full,
-      allCoordinates: all_coordinates_samples,
     }, this.calc_quality) // calc_quality doesnt do anything on first run
   }
 
   async reloadCoordinatesWithSize(event: React.ChangeEvent<HTMLInputElement>) {
     let size = parseInt(event.target.value) || 0
 
-    return this.loadCoordinates(size)
-      .then(() => this.setState({
-        coordinates_to_show: size
-      }))
+    return this.setState({
+      coordinates_to_show: size
+    }, this.updateSelectedCoordinates)
   }
 
   async loadDataAndSearchIndex() {
@@ -460,6 +485,7 @@ export default class Data extends Component<any, State> {
       this.loadDataAndSearchIndex(),
       this.loadLabels(),
     ])
+    await this.setSelectedCoordinates(this.state.coordinatesParameters.numNeighborsParameter, this.state.coordinatesParameters.minDistParameter)
     await this.loadClusters()
   }
 
@@ -467,11 +493,11 @@ export default class Data extends Component<any, State> {
     const props: PropsFromData = {
       ...this.state,
       reloadCoordinatesWithSize: this.reloadCoordinatesWithSize,
-      getSelectedCoordinates: this.getSelectedCoordinates,
       setSelectedCoordinates: this.setSelectedCoordinates,
       setClustersToShow: this.setClustersToShow,
-      renameLabel: this.renameLabel,
+      renameLabels: this.renameLabels,
       pushToDataChanged: this.pushToDataChanged,
+      setHoveredCommentCoordinate: this.setHoveredCommentCoordinate,
     }
     return this.state.allCoordinates && this.state.data && this.state.labels ? (
       <Layout {...props} />

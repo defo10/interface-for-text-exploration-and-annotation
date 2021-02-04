@@ -117,45 +117,18 @@ class Layout extends Component<PropsFromData, LayoutState> {
 
     let sidebar_image_size, sidebar_orientation
     let font_size = 16
-    if (this.state.ww! < 800) { // media-query mobile
-      font_size = 14
-      sidebar_style = {
-        ...sidebar_style,
-        flexDirection: 'row',
-        width: '100%',
-        top: 'auto',
-        height: 'auto',
-        bottom: 0,
-      }
-      main_style = { width: this.state.ww, height: this.state.wh! - this.state.sidebar_height! }
-      sidebar_orientation = 'horizontal'
-    } else if (this.state.ww! < 1300) { // media query small desktops like laptops
-      let sidebar_width = this.state.ww! / 3
-      sidebar_style = {
-        ...sidebar_style,
-        width: sidebar_width,
-      }
-      main_style = {
-        ...main_style,
-        width: this.state.ww! - sidebar_width,
-        left: sidebar_width,
-        height: this.state.wh!,
-      }
-      sidebar_orientation = 'vertical'
-    } else { // media-query large desktops
-      let sidebar_width = this.state.ww! / 4
-      sidebar_style = {
-        ...sidebar_style,
-        width: sidebar_width,
-      }
-      main_style = {
-        ...main_style,
-        width: this.state.ww! - sidebar_width,
-        left: sidebar_width,
-        height: this.state.wh!,
-      }
-      sidebar_orientation = 'vertical'
+    let sidebar_width = this.state.ww! / 3
+    sidebar_style = {
+      ...sidebar_style,
+      width: sidebar_width,
     }
+    main_style = {
+      ...main_style,
+      width: this.state.ww! - sidebar_width,
+      left: sidebar_width,
+      height: this.state.wh!,
+    }
+    sidebar_orientation = 'vertical'
 
     let grem = font_size * line_height
 
@@ -171,7 +144,7 @@ class Layout extends Component<PropsFromData, LayoutState> {
       selectCluster: this.selectCluster,
       sidebar_orientation: sidebar_orientation,
     }
-    
+
     const propsForProjection: PropsForProjection = {
       ...this.props,
       width: main_style.width,
@@ -183,7 +156,7 @@ class Layout extends Component<PropsFromData, LayoutState> {
       searchResultIndices: this.state.searchResultIndices,
       selectCluster: this.selectCluster
     }
-    
+
 
     return this.state.ww! !== null ? (
       <div style={general_style}>
@@ -203,7 +176,7 @@ class Layout extends Component<PropsFromData, LayoutState> {
         </div>
         <div style={main_style}>
           <ProjectionParameters {...propsForProjection} />
-          <Projection {...propsForProjection}/>
+          <Projection {...propsForProjection} />
         </div>
       </div>
     ) : (

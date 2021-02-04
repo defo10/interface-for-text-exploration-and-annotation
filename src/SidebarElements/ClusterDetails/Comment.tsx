@@ -69,20 +69,18 @@ export default function Comment({ dense = false, data, i, onMoveCluster, added=f
     const { publishedAt, authorName, cleaned } = data![i]
     const [showClusterChangeDialog, setShowClusterChangeDialog] = useState(false)
 
-    const [isBtnVisible, setIsBtnVisible] = useState(false)
-
-    const showBtns = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        setIsBtnVisible(true)
+    const showPoint = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        other.setHoveredCommentCoordinate(i)
     }
 
-    const hideBtns = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        setIsBtnVisible(false)
+    const hidePoint = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        other.setHoveredCommentCoordinate(null)
     }
 
     const dataPoint = _.find(other.dataChanged, ['i', i])
 
     return (
-        <Card onMouseEnter={showBtns} onMouseLeave={hideBtns} className={classes.styleContainer}>
+        <Card onMouseEnter={showPoint} onMouseLeave={hidePoint} className={classes.styleContainer}>
             <CardContent>
                 {dataPoint && <p style={{marginLeft: 0}} className={classes.styleDate}>{`from cluster ${dataPoint?.oldLabel.label_kmedoids} to ${dataPoint?.newLabel.label_kmedoids}`}</p>}
                 <div className={classes.styleMetaInfos}>

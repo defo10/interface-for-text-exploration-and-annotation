@@ -45,8 +45,8 @@ export default function Sidebar(props: PropsForSidebar) {
   return (
     <div className={classes.sidebarContainer}>
       <div className={classes.coverSidebar}>
-        <ClusterMerger {...props} />
         <ClusterOverview {...props} />
+        <ClusterMerger {...props} />
       </div>
       <div className={props.selectedCluster == null ? `${classes.coverSidebar}` : `${classes.coverSidebar} ${classes.slideUp}`}>
         <ClusterDetails {...props} key={`${props.selectedCluster}`} />

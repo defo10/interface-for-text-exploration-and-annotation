@@ -53,7 +53,7 @@ export default function ClusterChangeCommentDialog({
             <List>
                 <ListSubheader component="div" id="nested-list-subheader" disableSticky>Selected Cluster</ListSubheader>
                 <ListItem onClick={() => onMoveCluster(selectedCluster, i)} button key={`clusterpicker-${-1}`}>
-                    <ListItemText primary={selectedCluster} secondary={`size: ${clusters[selectedCluster || ""]?.size}  |  quality: ${clusters[selectedCluster || ""]?.quality.toFixed(3)}`} />
+                    <ListItemText primary={selectedCluster} secondary={`size: ${clusters[selectedCluster || ""]?.size}    density: ${clusters[selectedCluster || ""]?.quality.toFixed(3)}`} />
                 </ListItem>
                 <ListSubheader component="div" id="nested-list-subheader" disableSticky>Visible Clusters</ListSubheader>
                 {
@@ -61,7 +61,7 @@ export default function ClusterChangeCommentDialog({
                         if (cluster === labels![i].label_kmedoids) return
                         return (
                             <ListItem onClick={() => onMoveCluster(cluster, i)} button key={`clusterpicker-${cluster}`}>
-                                <ListItemText primary={cluster} secondary={`size: ${clusters[cluster].size}  |  quality: ${clusters[cluster].quality.toFixed(3)}`} />
+                                <ListItemText primary={cluster} secondary={`size: ${clusters[cluster].size}    density: ${clusters[cluster].quality.toFixed(3)}`} />
                             </ListItem>)
                     })
                 }
@@ -69,7 +69,7 @@ export default function ClusterChangeCommentDialog({
                 {
                     remainingClusters.map((cluster: string) => (
                         <ListItem onClick={() => onMoveCluster(cluster, i)} button key={`clusterpicker-${cluster}`}>
-                            <ListItemText primary={cluster} secondary={`size: ${clusters[cluster].size}  |  quality: ${clusters[cluster].quality.toFixed(3)}`} />
+                            <ListItemText primary={cluster} secondary={`size: ${clusters[cluster].size}    density: ${clusters[cluster].quality.toFixed(3)}`} />
                         </ListItem>)
                     )
                 }

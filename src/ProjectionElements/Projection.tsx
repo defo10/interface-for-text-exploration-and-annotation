@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import * as d3 from 'd3'
 import { Coordinate, PropsFromData } from '../Data'
 import { ZoomBehavior } from 'd3'
+import _, { join } from 'lodash'
+import { LensTwoTone } from '@material-ui/icons'
 
 
 export type PropsForProjection = {
@@ -49,12 +51,12 @@ class Projection extends Component<PropsForProjection, {}> {
   drawScatterPlot() {
     if (!this.ref) return
 
-    const { width, height, setSelectedDatum, getSelectedCoordinates, 
+    const { width, height, setSelectedDatum, allCoordinates,
       clustersToShow, selectCluster, labels } = this.props
     this.svg = d3.select(this.ref)
 
 
-    const coordsToShow = this.getIntersectionCoordinatesClustersToShow(getSelectedCoordinates(), clustersToShow)
+    const coordsToShow = this.getIntersectionCoordinatesClustersToShow(allCoordinates!, clustersToShow)
     if (coordsToShow.length === 0) return this.svg.selectAll('circle').remove()
 
     const circles = this.svg.selectAll("circle")
@@ -123,10 +125,10 @@ class Projection extends Component<PropsForProjection, {}> {
    * to its cluster have distinct colors
    */
   updateColorPoints() {
-    const { selected_datum, labels, getSelectedCoordinates, clustersToShow } = this.props
-    if (!this.svg  || !labels) return
+    const { selected_datum, labels, allCoordinates, clustersToShow } = this.props
+    if (!this.svg || !labels) return
 
-    const coordsToShow = this.getIntersectionCoordinatesClustersToShow(getSelectedCoordinates(), clustersToShow)
+    const coordsToShow = this.getIntersectionCoordinatesClustersToShow(allCoordinates!, clustersToShow)
     if (coordsToShow.length === 0) return this.svg.selectAll('circle').remove()
 
 
@@ -141,8 +143,8 @@ class Projection extends Component<PropsForProjection, {}> {
 
   highlightSearchResults() {
     if (!this.svg) return
-    const { selected_datum, labels, labelChoice, getSelectedCoordinates, searchResultIndices, clustersToShow } = this.props
-    const coordsToShow = this.getIntersectionCoordinatesClustersToShow(getSelectedCoordinates(), clustersToShow)
+    const { selected_datum, labels, labelChoice, allCoordinates, searchResultIndices, clustersToShow } = this.props
+    const coordsToShow = this.getIntersectionCoordinatesClustersToShow(allCoordinates!, clustersToShow)
     if (coordsToShow.length === 0) return this.svg.selectAll('circle').remove()
 
     this.svg.selectAll('circle')
@@ -153,14 +155,29 @@ class Projection extends Component<PropsForProjection, {}> {
       })
   }
 
+  showHoveredComment() {
+    const { selected_datum, labels, allCoordinates, clustersToShow, hoveredCommentCoordinate } = this.props
+    if (!this.svg || !labels) return
+
+    var coordsToShow = this.getIntersectionCoordinatesClustersToShow(allCoordinates!, clustersToShow)
+    if (coordsToShow.length === 0) return this.svg.selectAll('circle').remove()
+
+    this.svg.selectAll('circle')
+      .data(hoveredCommentCoordinate ? [...coordsToShow, hoveredCommentCoordinate] : coordsToShow, (d: any) => d.index)
+      .join(
+        enter => enter.append('circle')
+          .attr('fill', 'cyan')
+          .attr('r', '5')
+          .attr("transform", d => `translate(${this.scaleTransform.k * d.x + this.scaleTransform.x}, ${this.scaleTransform.k * d.y + this.scaleTransform.y})`)
+      )
+  }
+
   hasSelectedDatumChanged(prevProps: PropsForProjection) {
     return prevProps.selected_datum !== this.props.selected_datum
   }
 
   haveCoordinatesChanged(prevProps: PropsForProjection) {
-    return prevProps.coordinatesParameters.minDistParameter !== this.props.coordinatesParameters.minDistParameter
-      || prevProps.coordinatesParameters.numNeighborsParameter !== this.props.coordinatesParameters.numNeighborsParameter
-      || prevProps.coordinates_to_show !== this.props.coordinates_to_show
+    return !_.isEqual(_.sortBy(prevProps.allCoordinates), _.sortBy(this.props.allCoordinates))
   }
 
   haveSearchResultsChanged(prevProps: PropsForProjection) {
@@ -168,11 +185,15 @@ class Projection extends Component<PropsForProjection, {}> {
   }
 
   haveClustersToShowChanged(prevProps: PropsForProjection) {
-    return prevProps.clustersToShow !== this.props.clustersToShow
+    return !_.isEqual(_.sortBy(prevProps.clustersToShow), _.sortBy(this.props.clustersToShow))
   }
 
   hasSelectedClusterChanged(prevProps: PropsForProjection) {
     return prevProps.selectedCluster !== this.props.selectedCluster
+  }
+
+  hasHoveredCommentCoordinateChanged(prevProps: PropsForProjection) {
+    return prevProps.hoveredCommentCoordinate?.index !== this.props.hoveredCommentCoordinate?.index
   }
 
   componentDidUpdate(prevProps: PropsForProjection, prevState: {}) {
@@ -184,6 +205,7 @@ class Projection extends Component<PropsForProjection, {}> {
     if (this.hasSelectedClusterChanged(prevProps) || this.hasSelectedDatumChanged(prevProps))
       return this.updateColorPoints()
     if (this.haveSearchResultsChanged(prevProps)) return this.highlightSearchResults()
+    if (this.hasHoveredCommentCoordinateChanged(prevProps)) return this.showHoveredComment()
   }
 
   render() {

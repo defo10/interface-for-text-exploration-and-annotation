@@ -68,7 +68,7 @@ function EnhancedTableHead(props: any) {
     };
 
     const headCells = [
-        { id: 'label', numeric: false, disablePadding: true, label: 'Label' },
+        { id: 'label', numeric: false, disablePadding: true, label: 'Cluster Name' },
         { id: 'size', numeric: true, disablePadding: false, label: 'Size' },
         { id: 'metric', numeric: true, disablePadding: false, label: 'Density' },
     ];
@@ -120,21 +120,10 @@ EnhancedTableHead.propTypes = {
     rowCount: PropTypes.number.isRequired,
 };
 
-const useToolbarStyles = makeStyles((theme) => ({
-    root: {
-        paddingLeft: theme.spacing(2),
-        paddingRight: theme.spacing(1),
-    },
-    title: {
-        flex: '1 1 100%',
-    },
-}));
-
 function EnhancedTableToolbar(props: any) {
-    const classes = useToolbarStyles();
     return (
         <Toolbar>
-            <Typography className={classes.title} variant="h6" id="tableTitle">Cluster</Typography>
+            <Typography variant="h4" id="tableTitle" style={{ padding: '40px 0' }}>Overview Clusters</Typography>
         </Toolbar>
     );
 }
@@ -152,7 +141,6 @@ const useStyles = makeStyles((theme) => ({
     },
     table: {
         color: 'white',
-        minWidth: 750,
     },
     visuallyHidden: {
         border: 0,
@@ -166,6 +154,25 @@ const useStyles = makeStyles((theme) => ({
         width: 1,
     },
 }));
+
+const useTablePaginationStyles = makeStyles((theme) => ({
+    spacer: {
+        flex: '1'
+    },
+    actions: {
+        marginLeft: '0',
+        marginRight: '0'
+    },
+    input: {
+        flex: '1 3 100%',
+        marginLeft: '0',
+        marginRight: '0'
+    },
+    caption: {
+        flex: '1 1 100%'
+    },
+
+}))
 
 const useTableRowStyles = makeStyles((theme) => ({
     selected: {
@@ -188,17 +195,18 @@ function clustersToRows(clusters: Cluster) {
 }
 
 type PropsClusterTable = PropsForSidebar
-export default function ClusterTable({ 
-    labels, 
-    data, 
+export default function ClusterTable({
+    labels,
+    data,
     dataChanged,
-    clustersToShow, 
-    setClustersToShow, 
-    selectCluster, 
+    clustersToShow,
+    setClustersToShow,
+    selectCluster,
     ...other }: PropsClusterTable) {
-        
+
     const classes = useStyles();
     const classesTableRow = useTableRowStyles()
+    const classesTablePagination = useTablePaginationStyles()
     const [order, setOrder] = useState('desc');
     const [orderBy, setOrderBy] = useState('size' as OrderBy);
     const [page, setPage] = useState(0);
@@ -278,7 +286,7 @@ export default function ClusterTable({
 
     useEffect(() => {
         rows = clustersToRows(other.clusters)
-    }, [other.clusters])
+    }, [other.clusters]) // if clusters change, update rows
 
     return (
         <div>
@@ -343,7 +351,8 @@ export default function ClusterTable({
                     </Table>
                 </TableContainer>
                 <TablePagination
-                    rowsPerPageOptions={[15, 30, 45]}
+                    classes={classesTablePagination}
+                    rowsPerPageOptions={[10,20,45]}
                     component="div"
                     count={rows.length}
                     rowsPerPage={rowsPerPage}

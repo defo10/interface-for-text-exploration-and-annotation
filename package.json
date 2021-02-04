@@ -1,7 +1,7 @@
 {
-  "name": "umap-four",
-  "version": "0.1.0",
-  "homepage": "http://grantcuster.github.io/umap-explorer",
+  "name": "ba",
+  "version": "0.5.2",
+  "homepage": "http://dast.xyz/bachelor",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.2",

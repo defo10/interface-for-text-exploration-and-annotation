@@ -29,7 +29,7 @@ export default function ClusterMenu(props: PropsClusterMenu) {
     const classes = useStyles()
 
     const handleArrowBack = () => {
-        if (props.selectedCluster! != props.labelLocal) props.renameLabel(props.selectedCluster!, (props.labelLocal || "N/A"))
+        if (props.selectedCluster! != props.labelLocal) props.renameLabels([props.selectedCluster!], (props.labelLocal || "N/A"))
         props.selectCluster(null)
         props.setLabelLocal("")
         props.setSelectedDatum(null)
