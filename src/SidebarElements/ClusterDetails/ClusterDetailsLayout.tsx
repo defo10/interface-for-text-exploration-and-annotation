@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { DataPoint, Label } from '../../Data'
 import { PropsForSidebar } from '../../Sidebar'
 import Separator from '../Separator'
@@ -11,11 +11,18 @@ import ClusterChangeCommentDialog from './ClusterChangeCommentDialog'
 import _ from 'lodash'
 import { index } from 'd3'
 
+const useStyles = makeStyles(theme => ({
+    padding: {
+        padding: theme.spacing(2),
+    }
+}))
 
 type ClusterDetailsLayoutProps = PropsForSidebar
 
 export default function ClusterDetailsLayout(props: ClusterDetailsLayoutProps) {
     const { data, dataChanged, pushToDataChanged, labels, selected_datum, selectedCluster } = props
+    const classes = useStyles()
+    const clickedOnCommentRef = useRef<null | HTMLDivElement>(null)
     const [labelLocal, setLabelLocal] = useState(selectedCluster || "")
     // select only unchanged data of cluster, without selected point
     const dataOfCluster = data!.filter((d, i) => {
@@ -35,6 +42,10 @@ export default function ClusterDetailsLayout(props: ClusterDetailsLayoutProps) {
             setLabelLocal(selectedCluster)
         }
     }, [selectedCluster])
+
+    useEffect(() => { // scroll to selected comment section if point was clicked on projection 
+        if (clickedOnCommentRef.current) clickedOnCommentRef.current.scrollIntoView({behavior: 'smooth'})
+    }, [selected_datum])
 
     const onMoveCluster = (newLabel: string | null, i: number) => {
         if (!newLabel || !labels) return
@@ -61,8 +72,13 @@ export default function ClusterDetailsLayout(props: ClusterDetailsLayoutProps) {
         })
     }
 
-    const buildHeadline = (headline: string) => (
-        <Typography style={{ padding: '5%' }} variant='h5'>{headline}</Typography>
+    const buildHeadlineAndInfo = (headline: string, caption: string | null) => (
+        <div className={classes.padding}>
+            <Typography variant='h5'>{headline}</Typography>
+            {caption &&
+                <Typography variant="body2">{caption}</Typography>
+            }
+        </div>
     )
 
     const hasRepresentative = props.selectedCluster && props.clusters[props.selectedCluster].medoid
@@ -71,35 +87,30 @@ export default function ClusterDetailsLayout(props: ClusterDetailsLayoutProps) {
     return (
         (selectedCluster) ?
             (<>
-                <ClusterMenu labelLocal={labelLocal!} setLabelLocal={setLabelLocal} {...props} />
-                {dataAddedToThisCluster.length != 0 && buildHeadline('Added to this Cluster')}
+                <div ref={clickedOnCommentRef}></div>
+                <ClusterMenu  labelLocal={labelLocal!} setLabelLocal={setLabelLocal} {...props} />
+                {dataAddedToThisCluster.length != 0 && buildHeadlineAndInfo('Added to this Cluster', 'Here are all comments added to this cluster from another by you in this cycle.')}
                 {dataAddedToThisCluster.length != 0 && buildComments(dataAddedToThisCluster as DataPoint[], 'added')}
-                {dataRemovedFromThisCluster.length != 0 && buildHeadline('Removed from this Cluster')}
+                {dataRemovedFromThisCluster.length != 0 && buildHeadlineAndInfo('Removed from this Cluster', 'Here are all comments removed from this cluster by you in this cycle.')}
                 {dataRemovedFromThisCluster.length != 0 && buildComments(dataRemovedFromThisCluster as DataPoint[], 'removed')}
-                {buildHeadline('Cluster-infos')}
+                {buildHeadlineAndInfo('Cluster-infos', 'Meta-information about the cluster you selected.')}
                 <MetaInfo selectedClusterInfo={props.clusters[selectedCluster]} {...props} />
-                {hasRepresentative && buildHeadline('Cluster-Representative')}
+                {selected_datum && (
+                    <>
+                    {buildHeadlineAndInfo('Selected Comment', 'The comment of the point clicked on.')}
+                    <Comment onMoveCluster={onMoveCluster} i={selected_datum} {...props} />
+                    </>
+                )}
+                {hasRepresentative && buildHeadlineAndInfo('Cluster-Representative', 'The most centrally located point in the cluster.')}
                 {hasRepresentative && <Comment onMoveCluster={onMoveCluster} i={props.clusters[props.selectedCluster!].medoid || 0} {...props} />}
-                {otherRepresentatives && buildHeadline('Overview-Comments')}
+                {otherRepresentatives && buildHeadlineAndInfo('Overview-Comments', 'Four distinct comments of this cluster, giving an overview of all comments of this cluster.')}
                 {otherRepresentatives && props.clusters[props.selectedCluster!].representatives.map(
                     reprs_index => (
                         <Comment key={`representative-${reprs_index}`} onMoveCluster={onMoveCluster} i={reprs_index} {...props} />
                     )
                 )}
-                <div style={{
-                    display: 'flex',
-                    flexDirection: (props.sidebar_orientation === 'horizontal') ? 'row' : 'column',
-                }}
-                >
-                    {selected_datum && (
-                        <>
-                            {buildHeadline('Selected Comment')}
-                            <Comment onMoveCluster={onMoveCluster} i={selected_datum} {...props} />
-                        </>
-                    )}
-                    {buildHeadline('Other comments')}
-                    {buildComments(dataOfCluster, 'normal')}
-                </div>
+                {buildHeadlineAndInfo('Other comments', 'A sample of other comments of this cluster.')}
+                {buildComments(dataOfCluster, 'normal')}
             </>)
             : <p>No Cluster selected</p>
     )

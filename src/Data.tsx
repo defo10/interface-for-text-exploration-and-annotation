@@ -83,6 +83,7 @@ type State = {
   searchIndex: lunr.Index | null,
   /** is an array of cluster names to show on the projection */
   clustersToShow: string[],
+  /** meta info about each cluster in a dictionary */
   clusters: Cluster,
   /** the coordinate of the comment the user hovers over, or null if not hovering */
   hoveredCommentCoordinate: Coordinate | null,
@@ -397,10 +398,14 @@ export default class Data extends Component<any, State> {
     })
     const search_index = lunr(function () {
       this.field('comment')
+      this.field('author')
+      this.field('published')
 
       for (let i = 0; i < data.length; i++) {
         this.add({
           'comment': data[i].cleaned,
+          'author': data[i].authorName,
+          'published': data[i].publishedAt,
           'id': `${i}`,
         })
       }

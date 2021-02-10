@@ -11,24 +11,11 @@ import { LayoutState } from './Layout'
 import { createUseStyles } from 'react-jss'
 
 const buildStyles = createUseStyles({
-  sidebarContainer: {
+  sidebarContainerLeft: {
     width: '100%',
     height: '100vh',
     overflow: 'hidden',
   },
-  coverSidebar: {
-    width: '100%',
-    height: '100%',
-    overflow: 'scroll',
-    position: 'relative',
-    bottom: '0px',
-    transition: 'all 0.3s',
-    backgroundColor: '#222'
-  },
-  slideUp: {
-    transform: 'translateY(-100%)',
-    zIndex: 2,
-  }
 })
 
 export type PropsForSidebar = {
@@ -43,13 +30,9 @@ export default function Sidebar(props: PropsForSidebar) {
   const classes = buildStyles()
 
   return (
-    <div className={classes.sidebarContainer}>
-      <div className={classes.coverSidebar}>
+    <div className={classes.sidebarContainerLeft}>
+      <div style={{overflow: 'scroll'}}>
         <ClusterOverview {...props} />
-        <ClusterMerger {...props} />
-      </div>
-      <div className={props.selectedCluster == null ? `${classes.coverSidebar}` : `${classes.coverSidebar} ${classes.slideUp}`}>
-        <ClusterDetails {...props} key={`${props.selectedCluster}`} />
       </div>
     </div>
   )

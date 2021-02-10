@@ -22,10 +22,11 @@ export type CommentProps = {
 const useStyles = makeStyles<any, {backgroundColor: string}>((theme) => ({
     styleContainer: props => ({
         display: 'block',
-        marginLeft: theme.spacing(2),
-        marginRight: theme.spacing(2),
-        marginBottom: theme.spacing(2),
+        marginLeft: 0,
+        marginRight: 0,
+        marginBottom: theme.spacing(1),
         backgroundColor: props.backgroundColor,
+        borderRadius: 0,
     }),
     styleMetaInfos: {
         display: 'block',
@@ -63,9 +64,20 @@ const useStyles = makeStyles<any, {backgroundColor: string}>((theme) => ({
     },
 }))
 
+// styles for card content --> make denser
+const useCardContentStyles = makeStyles(theme => ({
+    root: {
+        paddingTop: 8,
+        paddingBottom: 0,
+        paddingLeft: 16,
+        paddingRight: 16,
+    }
+}))
+
 export default function Comment({ dense = false, data, i, onMoveCluster, added=false, removed=false, ...other }: CommentProps) {
     const backgroundColor: string = added ? '#1d3d17' : removed ? '#3d171b' : "auto" 
     const classes = useStyles({backgroundColor: backgroundColor})
+    const cardContentStyles = useCardContentStyles()
     const { publishedAt, authorName, cleaned } = data![i]
     const [showClusterChangeDialog, setShowClusterChangeDialog] = useState(false)
 
@@ -81,7 +93,7 @@ export default function Comment({ dense = false, data, i, onMoveCluster, added=f
 
     return (
         <Card onMouseEnter={showPoint} onMouseLeave={hidePoint} className={classes.styleContainer}>
-            <CardContent>
+            <CardContent classes={cardContentStyles}>
                 {dataPoint && <p style={{marginLeft: 0}} className={classes.styleDate}>{`from cluster ${dataPoint?.oldLabel.label_kmedoids} to ${dataPoint?.newLabel.label_kmedoids}`}</p>}
                 <div className={classes.styleMetaInfos}>
                     <p className={classes.styleUsername}>{authorName}</p>

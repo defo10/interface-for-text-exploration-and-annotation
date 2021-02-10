@@ -16,3 +16,25 @@ code {
 circle:hover{
   fill: cyan;
 }
+
+.Resizer {
+  background-color: rgba(63, 81, 181, 0.1);
+  transition: all 0.3s ease;
+  z-index: 50 !important;
+}
+ 
+.Resizer:hover {
+  background-color: rgba(31, 50, 216, 0.589)
+}
+ 
+.Resizer.vertical {
+  width: 6px;
+  cursor: col-resize;
+}
+ 
+.Resizer.disabled {
+  cursor: not-allowed;
+}
+.Resizer.disabled:hover {
+  border-color: transparent;
+}

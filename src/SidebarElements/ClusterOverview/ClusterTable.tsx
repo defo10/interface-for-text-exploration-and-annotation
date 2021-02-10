@@ -120,18 +120,6 @@ EnhancedTableHead.propTypes = {
     rowCount: PropTypes.number.isRequired,
 };
 
-function EnhancedTableToolbar(props: any) {
-    return (
-        <Toolbar>
-            <Typography variant="h4" id="tableTitle" style={{ padding: '40px 0' }}>Overview Clusters</Typography>
-        </Toolbar>
-    );
-}
-
-EnhancedTableToolbar.propTypes = {
-    numSelected: PropTypes.number.isRequired,
-};
-
 const useStyles = makeStyles((theme) => ({
     paper: {
         color: 'white',
@@ -210,7 +198,7 @@ export default function ClusterTable({
     const [order, setOrder] = useState('desc');
     const [orderBy, setOrderBy] = useState('size' as OrderBy);
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(15);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
 
     rows = clustersToRows(other.clusters)
 
@@ -291,7 +279,6 @@ export default function ClusterTable({
     return (
         <div>
             <Paper className={classes.paper}>
-                <EnhancedTableToolbar numSelected={clustersToShow.length} />
                 <TableContainer>
                     <Table
                         style={{ width: '100%', minWidth: 'auto' }}
@@ -342,11 +329,6 @@ export default function ClusterTable({
                                         </TableRow>
                                     );
                                 })}
-                            {emptyRows > 0 && (
-                                <TableRow style={{ height: 53 * emptyRows }}>
-                                    <TableCell colSpan={4} />
-                                </TableRow>
-                            )}
                         </TableBody>
                     </Table>
                 </TableContainer>

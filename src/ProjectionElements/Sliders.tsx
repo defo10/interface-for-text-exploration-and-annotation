@@ -65,7 +65,7 @@ export default function SlidersParamter(props: PropsFromData) {
         <>
             <div className={classes.root}>
                 {/* num neighbors*/}
-                <Typography gutterBottom> 
+                <Typography variant="subtitle2" gutterBottom> 
                     Number of neighbors
                 </Typography>
                 <Slider
@@ -75,15 +75,15 @@ export default function SlidersParamter(props: PropsFromData) {
                     marks={marks_num_neighbors}
                     min={2}
                     max={50}
-                    valueLabelDisplay="off"
                     value={parseInt(numNeighbors)}
                     onChange={(event, val) => {
+                        if (props.coordinatesParameters.numNeighborsParameter === (`${val}` as ParameterNumNeighbors)) return
                         props.setSelectedCoordinates(`${val}` as ParameterNumNeighbors, minDist)
                     }}
                     className={classes.slider}
                 />
                 {/* min dist*/}
-                <Typography gutterBottom>
+                <Typography variant="subtitle2" gutterBottom>
                     Minimum distance between points
                 </Typography>
                 <Slider
@@ -93,9 +93,9 @@ export default function SlidersParamter(props: PropsFromData) {
                     marks={marks_min_dist}
                     min={1}
                     max={9}
-                    valueLabelDisplay="off"
                     value={parseInt(minDist.split('.')[1])} // e.g. '0.1' to 1
                     onChange={(event, val: number | number[]) => {
+                        if (props.coordinatesParameters.minDistParameter === (`0.${val}` as ParameterMinDist)) return
                         props.setSelectedCoordinates(numNeighbors, `0.${val}` as ParameterMinDist)
                     }}
                     className={classes.slider}

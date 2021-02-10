@@ -34,7 +34,7 @@ export default function ProjectionParameters(props: PropsForProjection) {
             onMouseLeave={() => setIsMouseOver(false)}>
             <SlidersParamter {...props} />
             <div className={classes.oneLineFlex}>
-                <Typography style={{ flex: '5' }}>
+                <Typography variant="subtitle2" style={{ flex: '5' }}>
                     Data Points to show:
                 </Typography>
                 <input name="numDataPoints" type="text" pattern="[0-9]*"
@@ -42,17 +42,10 @@ export default function ProjectionParameters(props: PropsForProjection) {
                     value={coordinatesToLoad}
                     onChange={(e) => {
                         let size = parseInt(e.target.value) || 0
-                        setCoordinatesToLoad(size)
                         setIsReloadingCoordinates(true)
                         props.reloadCoordinatesWithSize(e)
-                            .then(() => {
-                                setIsReloadingCoordinates(false)
-                            })
                     }}
                 ></input>
-                <CircularProgress
-                    style={{ flex: '1', visibility: isReloadingCoordinates ? 'visible' : 'hidden', marginLeft: '8px' }}
-                    size='1em' color='secondary' />
             </div>
         </div>
     )

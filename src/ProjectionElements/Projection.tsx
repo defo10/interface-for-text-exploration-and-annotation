@@ -1,10 +1,8 @@
 import React, { Component } from 'react'
 import * as d3 from 'd3'
 import { Coordinate, PropsFromData } from '../Data'
-import { ZoomBehavior } from 'd3'
-import _, { join } from 'lodash'
-import { LensTwoTone } from '@material-ui/icons'
-
+import { ZoomBehavior } from 'd3-zoom'
+import _, { join, stubFalse } from 'lodash'
 
 export type PropsForProjection = {
   width: number,
@@ -16,7 +14,7 @@ export type PropsForProjection = {
   selected_datum: number | null,
   searchResultIndices: object & {
     [key: string]: any | null
-  }
+  },
 } & PropsFromData
 
 
@@ -24,6 +22,7 @@ class Projection extends Component<PropsForProjection, {}> {
   ref: SVGSVGElement | null = null
   svg: d3.Selection<SVGSVGElement, any, null, undefined> | null = null
   scaleTransform: any = null
+  zoomBehavior: ZoomBehavior<SVGSVGElement, Coordinate> | null = null
 
   constructor(props: PropsForProjection) {
     super(props)
@@ -77,11 +76,13 @@ class Projection extends Component<PropsForProjection, {}> {
     })
 
     // zoom behavior
-    const zoomBehavior = this.getZoomBehavior(circles)
-    this.svg.call(zoomBehavior)
+    this.zoomBehavior = this.getZoomBehavior(circles)
+    this.svg.call(this.zoomBehavior)
 
     // start with scaled up init view if first time, else take previours scale state 
-    this.svg.call(zoomBehavior.transform, this.scaleTransform || this.getInitScale(width, height))
+    this.svg.call(this.zoomBehavior.transform, this.scaleTransform || this.getInitScale(width, height))
+
+    if (this.props.selectedCluster) this.updateColorPoints()
   }
 
   /** 
@@ -111,7 +112,7 @@ class Projection extends Component<PropsForProjection, {}> {
    * NOTE: assumes that the scale defined in {Data.js} is [0,100]
    */
   getInitScale(width: number, height: number) {
-    const scaleFactor = Math.min(width / 100, height / 100)
+    const scaleFactor = Math.min(width / 100, height / 100) // factor to either fill horizontally or vertically
     return d3.zoomIdentity.scale(scaleFactor)
   }
 
@@ -120,8 +121,7 @@ class Projection extends Component<PropsForProjection, {}> {
   }
 
   /**
-   * accesses the svg node associated with this class and updates
-   * all points so that the clicked point and the points belonging
+   * updates all points so that the clicked point and the points belonging
    * to its cluster have distinct colors
    */
   updateColorPoints() {
@@ -155,6 +155,7 @@ class Projection extends Component<PropsForProjection, {}> {
       })
   }
 
+  /** highlights the comment the user hovers over in the detail pane */
   showHoveredComment() {
     const { selected_datum, labels, allCoordinates, clustersToShow, hoveredCommentCoordinate } = this.props
     if (!this.svg || !labels) return
@@ -172,7 +173,58 @@ class Projection extends Component<PropsForProjection, {}> {
       )
   }
 
-  hasSelectedDatumChanged(prevProps: PropsForProjection) {
+  /** zooms around so that cluster center is in the center of svg viewport and all clusters are visible */
+  zoomAroundCluster() {
+    if (!this.zoomBehavior) return
+    if (!this.svg) return
+    if (!this.props.selectedCluster) { // if unselected cluster, show overview
+      const scaleFactor = this.getInitScale(this.props.width, this.props.height)
+
+      this.svg?.transition()
+      .duration(1000)
+      .call(
+        this.zoomBehavior.transform,
+        d3.zoomIdentity.scale(scaleFactor.k)
+      )
+      return
+    }
+
+    const numNeighbors = this.props.coordinatesParameters.numNeighborsParameter
+    const minDist = this.props.coordinatesParameters.minDistParameter
+    if (!this.props.allCoordinatesFull?.[numNeighbors]?.[minDist]) return
+
+    const allCoordsOfSelectedCluster = this.props.labels?.filter(
+      (el, i) => (el.label_kmedoids === this.props.selectedCluster) ? true : false)
+      .map((el, i) => this.props.allCoordinatesFull?.[numNeighbors]?.[minDist]?.[i]!)
+    
+    const mean_x = _.meanBy(allCoordsOfSelectedCluster, 'x') || 15
+    const mean_y = _.meanBy(allCoordsOfSelectedCluster, 'y') || 15
+    // TODO max x and max y, min x and min y, then scale factor just like below
+    // position where mean point is in the center of viewport
+    const mean_center_x = this.props.width / 2 - mean_x
+    const mean_center_y = this.props.height / 2 - mean_y
+    const delta_x = _.maxBy(allCoordsOfSelectedCluster, 'x')?.x || 0 - (_.minBy(allCoordsOfSelectedCluster, 'x')?.x || 0)
+    const delta_y = _.maxBy(allCoordsOfSelectedCluster, 'y')?.y || 0 - (_.minBy(allCoordsOfSelectedCluster, 'y')?.y || 0)
+    const scaleFactor = Math.min(this.props.width/delta_x, this.props.height/delta_y)
+
+    console.log([this.svg, this.zoomBehavior, mean_x, mean_y, scaleFactor])
+
+    this.svg?.transition()
+      .duration(500)
+      .call(
+        this.zoomBehavior.translateTo,
+        mean_x, mean_y
+      )
+      .transition()
+      .duration(500)
+      .call(
+        this.zoomBehavior.scaleTo,
+        scaleFactor * 1.3
+      )
+
+  }
+
+  hasCommentClickedOnChanged(prevProps: PropsForProjection) {
     return prevProps.selected_datum !== this.props.selected_datum
   }
 
@@ -197,13 +249,20 @@ class Projection extends Component<PropsForProjection, {}> {
   }
 
   componentDidUpdate(prevProps: PropsForProjection, prevState: {}) {
+    if (this.hasCommentClickedOnChanged(prevProps)) {
+      this.updateColorPoints()
+      return
+    }
+    if (this.hasSelectedClusterChanged(prevProps)) {
+      this.updateColorPoints()
+      this.zoomAroundCluster()
+      return
+    }
     if (this.haveCoordinatesChanged(prevProps) || this.haveClustersToShowChanged(prevProps)) {
       this.drawScatterPlot()
       this.updateColorPoints()
       return
     }
-    if (this.hasSelectedClusterChanged(prevProps) || this.hasSelectedDatumChanged(prevProps))
-      return this.updateColorPoints()
     if (this.haveSearchResultsChanged(prevProps)) return this.highlightSearchResults()
     if (this.hasHoveredCommentCoordinateChanged(prevProps)) return this.showHoveredComment()
   }

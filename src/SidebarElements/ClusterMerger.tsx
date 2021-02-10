@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, makeStyles, TextField, Toolbar, Typography } from "@material-ui/core";
+import { Button, makeStyles, TextField, Toolbar, Tooltip, Typography } from "@material-ui/core";
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { PropsForSidebar } from "../Sidebar";
 
@@ -9,18 +9,18 @@ const useStyles = makeStyles((theme) => ({
         paddingLeft: theme.spacing(3),
         paddingTop: '1em',
         paddingBottom: '1em',
-        width: '100%',
+        width: 'auto',
         height: 'auto'
-    },
-    flexAlignChildren: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-evenly'
     },
     rightAlign: {
         display: 'block',
         marginLeft: 'auto',
         marginRight: '0'
+    },
+    gridContainer: {
+        display: 'grid',
+        gridTemplateColumns: '9fr 1fr',
+        gridRowGap: theme.spacing(1)
     }
 }));
 
@@ -55,32 +55,24 @@ export default function ClusterMerger(props: PropsForSidebar) {
 
     return (
         <>
-            <Toolbar>
-                <Typography variant="h6">Merge two Clusters</Typography>
-            </Toolbar>
-            <div className={`${classes.flexAlignChildren} ${classes.horizontalContainer}`}>
+            <div className={classes.gridContainer}>
                 <Autocomplete
-                    style={{ flex: '3' }}
                     options={allClusters.filter(cluster => cluster != secondLabel).sort(compareByVisibility)}
                     groupBy={groupByVisibleClusters}
                     renderInput={(params: any) => <TextField {...params} label="First" variant="outlined" />}
                     onChange={(e, value) => setFirstLabel(value!)}
                     value={firstLabel}
                 />
-                <p style={{ display: 'inline', flex: '1', textAlign: 'center' }}>+</p>
+                <p style={{ textAlign: 'center' }}>+</p>
                 <Autocomplete
-                    style={{ flex: '3' }}
                     options={allClusters.filter(cluster => cluster != firstLabel).sort(compareByVisibility)}
                     groupBy={groupByVisibleClusters}
                     renderInput={(params: any) => <TextField {...params} label="Second" variant="outlined" />}
                     onChange={(e, value) => setSecondLabel(value!)}
                     value={secondLabel}
                 />
-            </div>
-            <div className={`${classes.flexAlignChildren} ${classes.horizontalContainer}`}>
-                <p style={{ display: 'inline', flex: '1', textAlign: 'center' }}>=</p>
+                <p style={{ textAlign: 'center' }}>=</p>
                 <TextField
-                    style={{ flex: '3' }}
                     variant='outlined'
                     value={newClusterName}
                     onChange={(e) => setName(e.target.value)}
@@ -88,9 +80,9 @@ export default function ClusterMerger(props: PropsForSidebar) {
             </div>
             <div className={classes.horizontalContainer}>
                 <Button
+                    className={classes.rightAlign}
                     variant="contained"
                     color="primary"
-                    className={classes.rightAlign}
                     onClick={merge}
                     disabled={!(firstLabel && secondLabel)}
                 >Merge</Button>
