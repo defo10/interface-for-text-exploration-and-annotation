@@ -223,11 +223,11 @@ export default function ClusterTable({
 
         if (selectedIndex === -1) { // wasn't clicked before
             newSelected = newSelected.concat(clustersToShow, name);
-        } else if (selectedIndex === 0) {
+        } else if (selectedIndex === 0) { // 
             newSelected = newSelected.concat(clustersToShow.slice(1));
-        } else if (selectedIndex === clustersToShow.length - 1) {
+        } else if (selectedIndex === clustersToShow.length - 1) { // is last one
             newSelected = newSelected.concat(clustersToShow.slice(0, -1));
-        } else if (selectedIndex > 0) {
+        } else if (selectedIndex > 0) { // unselected
             newSelected = newSelected.concat(
                 clustersToShow.slice(0, selectedIndex),
                 clustersToShow.slice(selectedIndex + 1),

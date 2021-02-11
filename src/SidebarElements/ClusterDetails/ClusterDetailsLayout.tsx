@@ -11,19 +11,35 @@ import ClusterChangeCommentDialog from './ClusterChangeCommentDialog'
 import _ from 'lodash'
 import { index } from 'd3'
 
+
 const useStyles = makeStyles(theme => ({
     padding: {
         padding: theme.spacing(2),
+    },
+    coverSidebar: {
+        position: 'relative',
+        width: '100%',
+        height: '100vh',
+        overflow: 'scroll',
+        transition: 'all 0.3s',
+        backgroundColor: '#222'
     }
 }))
 
 type ClusterDetailsLayoutProps = PropsForSidebar
 
+let prevSelectedCluster: string | null = ""
+let prevLabelLocal: string = ""
+
 export default function ClusterDetailsLayout(props: ClusterDetailsLayoutProps) {
     const { data, dataChanged, pushToDataChanged, labels, selected_datum, selectedCluster } = props
     const classes = useStyles()
     const clickedOnCommentRef = useRef<null | HTMLDivElement>(null)
-    const [labelLocal, setLabelLocal] = useState(selectedCluster || "")
+    const [labelLocal, _setLabelLocal] = useState(selectedCluster || "")
+    const setLabelLocal = (val: string) => {
+        prevLabelLocal = val
+        _setLabelLocal(val)
+    }
     // select only unchanged data of cluster, without selected point
     const dataOfCluster = data!.filter((d, i) => {
         if (labels === null) return false
@@ -32,19 +48,23 @@ export default function ClusterDetailsLayout(props: ClusterDetailsLayoutProps) {
         const sameCluster = (labels[i].label_kmedoids == selectedCluster)
         return !hasChangedAlready && sameCluster && !isSelectedDatum
     })
+
     // select all data that was added to this cluster
     const dataAddedToThisCluster = dataChanged.filter(el => el.newLabel.label_kmedoids === selectedCluster)
     // select all data that was removed from this cluster
     const dataRemovedFromThisCluster = dataChanged.filter(el => el.oldLabel.label_kmedoids === selectedCluster)
 
-    useEffect(() => {
-        if (selectedCluster) {
-            setLabelLocal(selectedCluster)
+    useEffect(() => { // if new point or cluster was clicked on, set to that
+        if (selectedCluster && prevSelectedCluster && prevSelectedCluster != prevLabelLocal) {
+            props.renameLabels([prevSelectedCluster], prevLabelLocal)
         }
+
+        prevLabelLocal = labelLocal
+        prevSelectedCluster = selectedCluster
     }, [selectedCluster])
 
     useEffect(() => { // scroll to selected comment section if point was clicked on projection 
-        if (clickedOnCommentRef.current) clickedOnCommentRef.current.scrollIntoView({behavior: 'smooth'})
+        if (clickedOnCommentRef.current) clickedOnCommentRef.current.scrollIntoView({ behavior: 'smooth' })
     }, [selected_datum])
 
     const onMoveCluster = (newLabel: string | null, i: number) => {
@@ -81,14 +101,14 @@ export default function ClusterDetailsLayout(props: ClusterDetailsLayoutProps) {
         </div>
     )
 
-    const hasRepresentative = props.selectedCluster && props.clusters[props.selectedCluster].medoid
-    const otherRepresentatives = props.selectedCluster && props.clusters[props.selectedCluster].representatives.length > 0
+    const hasRepresentative = props.selectedCluster && props.clusters[props.selectedCluster]?.medoid
+    const otherRepresentatives = props.selectedCluster && props.clusters[props.selectedCluster]?.representatives.length > 0
 
     return (
         (selectedCluster) ?
             (<>
                 <div ref={clickedOnCommentRef}></div>
-                <ClusterMenu  labelLocal={labelLocal!} setLabelLocal={setLabelLocal} {...props} />
+                <ClusterMenu labelLocal={labelLocal!} setLabelLocal={setLabelLocal} {...props} />
                 {dataAddedToThisCluster.length != 0 && buildHeadlineAndInfo('Added to this Cluster', 'Here are all comments added to this cluster from another by you in this cycle.')}
                 {dataAddedToThisCluster.length != 0 && buildComments(dataAddedToThisCluster as DataPoint[], 'added')}
                 {dataRemovedFromThisCluster.length != 0 && buildHeadlineAndInfo('Removed from this Cluster', 'Here are all comments removed from this cluster by you in this cycle.')}
@@ -97,8 +117,8 @@ export default function ClusterDetailsLayout(props: ClusterDetailsLayoutProps) {
                 <MetaInfo selectedClusterInfo={props.clusters[selectedCluster]} {...props} />
                 {selected_datum && (
                     <>
-                    {buildHeadlineAndInfo('Selected Comment', 'The comment of the point clicked on.')}
-                    <Comment onMoveCluster={onMoveCluster} i={selected_datum} {...props} />
+                        {buildHeadlineAndInfo('Selected Comment', 'The comment of the point clicked on.')}
+                        <Comment onMoveCluster={onMoveCluster} i={selected_datum} {...props} />
                     </>
                 )}
                 {hasRepresentative && buildHeadlineAndInfo('Cluster-Representative', 'The most centrally located point in the cluster.')}
@@ -112,6 +132,8 @@ export default function ClusterDetailsLayout(props: ClusterDetailsLayoutProps) {
                 {buildHeadlineAndInfo('Other comments', 'A sample of other comments of this cluster.')}
                 {buildComments(dataOfCluster, 'normal')}
             </>)
-            : <p>No Cluster selected</p>
+            : <div className={classes.coverSidebar} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <Typography style={{ padding: 16 }}>Click on a point or on a cluster in the left panel to see its details here!</Typography>
+            </div>
     )
 }

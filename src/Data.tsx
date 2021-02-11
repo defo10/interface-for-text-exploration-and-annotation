@@ -91,7 +91,7 @@ type State = {
 
 export type PropsFromData = {
   /** reloads as many coordinates that are shown in Projection as specified in e */
-  reloadCoordinatesWithSize: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>,
+  reloadCoordinatesWithSize: (e: React.ChangeEvent<HTMLInputElement>, callback?: () => void) => void,
   setSelectedCoordinates: (numNeighbors: ParameterNumNeighbors, minDist: ParameterMinDist) => void,
   /**
    * 
@@ -210,9 +210,11 @@ export default class Data extends Component<any, State> {
     )
 
     // rename in clusters
-    let clusters_new: Cluster = { ...this.state.clusters }
+    let clusters_new: Cluster = _.cloneDeep(this.state.clusters)
     let didMerge = false
     for (const oldLabel of oldLabels) {
+
+      if (oldLabel == newLabel) continue // skip merging if both already have same label
 
       const isMerging = clusters_new[newLabel]
       if (isMerging) { // merge if new already exists
@@ -246,7 +248,8 @@ export default class Data extends Component<any, State> {
     })
   }
 
-  updateSelectedCoordinates() {
+  /** samples this.state.clustersToShow many coords from specified coordinates of parameter */
+  updateSelectedCoordinates(callback?: () => void) {
     if (!this.state.allCoordinatesFull) {
       console.log('allCoordinates is null')
       return []
@@ -260,7 +263,7 @@ export default class Data extends Component<any, State> {
 
     this.setState({
       allCoordinates: coordinates
-    })
+    }, callback)
   }
 
   setClustersToShow(clusters: string[]) {
@@ -382,12 +385,14 @@ export default class Data extends Component<any, State> {
     }, this.calc_quality) // calc_quality doesnt do anything on first run
   }
 
-  async reloadCoordinatesWithSize(event: React.ChangeEvent<HTMLInputElement>) {
+  async reloadCoordinatesWithSize(event: React.ChangeEvent<HTMLInputElement>, callback?: () => void) {
     let size = parseInt(event.target.value) || 0
 
-    return this.setState({
+    this.setState({
       coordinates_to_show: size
-    }, this.updateSelectedCoordinates)
+    }, () => {
+      this.updateSelectedCoordinates(callback)
+    })
   }
 
   async loadDataAndSearchIndex() {

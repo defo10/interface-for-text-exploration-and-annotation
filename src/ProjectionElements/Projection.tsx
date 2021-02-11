@@ -207,8 +207,6 @@ class Projection extends Component<PropsForProjection, {}> {
     const delta_y = _.maxBy(allCoordsOfSelectedCluster, 'y')?.y || 0 - (_.minBy(allCoordsOfSelectedCluster, 'y')?.y || 0)
     const scaleFactor = Math.min(this.props.width/delta_x, this.props.height/delta_y)
 
-    console.log([this.svg, this.zoomBehavior, mean_x, mean_y, scaleFactor])
-
     this.svg?.transition()
       .duration(500)
       .call(
@@ -254,6 +252,7 @@ class Projection extends Component<PropsForProjection, {}> {
       return
     }
     if (this.hasSelectedClusterChanged(prevProps)) {
+      this.drawScatterPlot()
       this.updateColorPoints()
       this.zoomAroundCluster()
       return

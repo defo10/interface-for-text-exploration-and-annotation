@@ -9,17 +9,14 @@ import { PropsForProjection } from "./Projection"
 const useStyles = makeStyles<Theme, { width: number, isMouseOver: boolean }>(theme => ({
     absoluteContainer: {
         position: 'absolute',
-        left: theme.spacing(3),
+        margin: `0 ${theme.spacing(1)}`,
         bottom: theme.spacing(2),
-        padding: theme.spacing(2),
-        width: props => (props.width < 1300) ? '19vw' : '14vw',
         opacity: props => props.isMouseOver ? 1.0 : 0.2, // transparent until on mouse over
-        transition: 'opacity 0.1s'
-    },
-    oneLineFlex: {
+        transition: 'opacity 0.1s',
         display: 'flex',
-        alignItems: 'center'
-    }
+        flexWrap: 'wrap',
+        width: '100%'
+    },
 }))
 
 export default function ProjectionParameters(props: PropsForProjection) {
@@ -33,19 +30,25 @@ export default function ProjectionParameters(props: PropsForProjection) {
             onMouseEnter={() => setIsMouseOver(true)}
             onMouseLeave={() => setIsMouseOver(false)}>
             <SlidersParamter {...props} />
-            <div className={classes.oneLineFlex}>
-                <Typography variant="subtitle2" style={{ flex: '5' }}>
+            <div style={{padding: '0 16px'}}>
+                <Typography variant="subtitle2" style={{ display: 'inline', paddingRight: '16px' }}>
                     Data Points to show:
                 </Typography>
                 <input name="numDataPoints" type="text" pattern="[0-9]*"
-                    style={{ flex: '2 min-content', width: '4em', display: 'inline' }}
+                    style={{ width: '4em', display: 'inline' }}
                     value={coordinatesToLoad}
                     onChange={(e) => {
                         let size = parseInt(e.target.value) || 0
+                        setCoordinatesToLoad(size)
                         setIsReloadingCoordinates(true)
-                        props.reloadCoordinatesWithSize(e)
+                        props.reloadCoordinatesWithSize(e, () => {
+                            setIsReloadingCoordinates(false)
+                        })
                     }}
                 ></input>
+                <CircularProgress style={{
+                    visibility: isReloadingCoordinates ? 'visible' : 'hidden',
+                    display: 'inline-block', marginLeft: '8px'}} size="1em"></CircularProgress>
             </div>
         </div>
     )

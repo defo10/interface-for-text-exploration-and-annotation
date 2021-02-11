@@ -25,9 +25,6 @@ const useStyles = createUseStyles({
         overflow: 'scroll',
         transition: 'all 0.3s',
         backgroundColor: '#222'
-    },
-    slideUp: {
-        zIndex: 2,
     }
 })
 
@@ -45,11 +42,8 @@ export default function Sidebar2(props: PropsForSidebar) {
 
     return (
         <div className={classes.sidebarContainer}>
-            <div className={!props.selectedCluster ? `${classes.coverSidebar}` : `${classes.coverSidebar} ${classes.slideUp}`}>
+            <div className={classes.coverSidebar}>
                 <ClusterDetails {...props} key={`${props.selectedCluster}`} />
-            </div>
-            <div className={classes.coverSidebar} style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-                <Typography style={{padding: 16}}>Click on a point or on a cluster in the left panel to see its details here!</Typography>
             </div>
         </div>
     )

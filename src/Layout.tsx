@@ -70,7 +70,7 @@ class Layout extends Component<PropsFromData, LayoutState> {
   setSize() {
     let sidebar_height = this.sidebar_mount?.offsetHeight || 0
     let sidebar_width = _.max([window.innerWidth / 4 || 350, 350]) || 350
-    let svg_width = 0.5 * window.innerWidth
+    let svg_width = _.min([window.innerWidth - (2 * minSizePanel), 0.5 * window.innerWidth]) || window.innerWidth - (2 * minSizePanel)
     this.setState({
       sidebar_height: sidebar_height,
       sidebar_width: sidebar_width,
@@ -197,7 +197,7 @@ class Layout extends Component<PropsFromData, LayoutState> {
           split="vertical"
           minSize={400}
           defaultSize={this.state.svg_width || 400}
-          maxSize={(this.state.ww - (this.state.sidebar_width || 0)) / 10 * 8}
+          maxSize={this.state.ww - (2 * minSizePanel)}
           onChange={(newWidth) => {
             this.setState({
               svg_width: newWidth,

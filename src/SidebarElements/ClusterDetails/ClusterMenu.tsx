@@ -4,7 +4,7 @@ import IconButton from '@material-ui/core/IconButton';
 import { ArrowBack } from '@material-ui/icons';
 import { createStyles, makeStyles, TextField, Theme } from '@material-ui/core';
 import { PropsForSidebar } from '../../Sidebar'
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -29,7 +29,7 @@ export default function ClusterMenu(props: PropsClusterMenu) {
     const classes = useStyles()
 
     const handleArrowBack = () => {
-        //if (props.selectedCluster! != props.labelLocal) props.renameLabels([props.selectedCluster!], (props.labelLocal || "N/A"))
+        if (props.selectedCluster! != props.labelLocal) props.renameLabels([props.selectedCluster!], (props.labelLocal || "No Name"))
         props.selectCluster(null)
         props.setLabelLocal("")
         props.setSelectedDatum(null)
@@ -47,7 +47,7 @@ export default function ClusterMenu(props: PropsClusterMenu) {
                     inputProps={{ style: { fontSize: '1.5em', fontWeight: 600, padding: '8px'}}}
                     variant="filled"
                     value={props.labelLocal}
-                    onChange={(e: any) => props.renameLabels([props.selectedCluster!], (e.target.value || "No Name"))}
+                    onChange={(e: any) => props.setLabelLocal(e.target.value)}
                 />
             </Toolbar>
         </AppBar>

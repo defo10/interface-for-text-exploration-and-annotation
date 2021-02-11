@@ -6,9 +6,6 @@ import Slider from '@material-ui/core/Slider';
 import Toolbar from '@material-ui/core/Toolbar';
 
 const useStyles = makeStyles((theme) => ({
-    root: {
-
-    },
     margin: {
         height: theme.spacing(3),
     },
@@ -63,9 +60,9 @@ export default function SlidersParamter(props: PropsFromData) {
 
     return (
         <>
-            <div className={classes.root}>
-                {/* num neighbors*/}
-                <Typography variant="subtitle2" gutterBottom> 
+            {/* num neighbors*/}
+            <div style={{ flex: '2 auto', padding: '0 16px' }}>
+                <Typography variant="subtitle2" gutterBottom>
                     Number of neighbors
                 </Typography>
                 <Slider
@@ -82,7 +79,9 @@ export default function SlidersParamter(props: PropsFromData) {
                     }}
                     className={classes.slider}
                 />
-                {/* min dist*/}
+            </div>
+            {/* min dist*/}
+            <div style={{ flex: '2 auto',  padding: '0 16px' }}>
                 <Typography variant="subtitle2" gutterBottom>
                     Minimum distance between points
                 </Typography>

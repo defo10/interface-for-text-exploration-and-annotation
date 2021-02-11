@@ -35,6 +35,8 @@ export default function ClusterMerger(props: PropsForSidebar) {
     const merge = () => {
         if (!firstLabel || !secondLabel) return
         props.renameLabels([firstLabel, secondLabel], newClusterName)
+        props.setSelectedDatum(null)
+        props.selectCluster(newClusterName)
         setFirstLabel(null)
         setSecondLabel(null)
     }
