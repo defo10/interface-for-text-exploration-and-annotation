@@ -97,7 +97,7 @@ export type PropsFromData = {
    * 
    * @param clusters is an array of labels of the clusters to show
    */
-  setClustersToShow: (clusters: string[]) => void,
+  setClustersToShow: (clusters: string[], callback?: () => void) => void,
   /**
    * changes all occurences of oldLabel to newLabel inside labels and
    * clustersToShow.
@@ -139,7 +139,7 @@ export default class Data extends Component<any, State> {
       data: null,
       labels: null,
       searchIndex: null,
-      clustersToShow: [],
+      clustersToShow: ["12", "4", "1", "31"],  // only select four biggest on mount
       clusters: {},
       dataChanged: [],
       hoveredCommentCoordinate: null,
@@ -266,10 +266,12 @@ export default class Data extends Component<any, State> {
     }, callback)
   }
 
-  setClustersToShow(clusters: string[]) {
+  setClustersToShow(clusters: string[], callback?: () => void) {
     this.setState({
       clustersToShow: clusters
-    }, this.updateSelectedCoordinates)
+    }, () => {
+      this.updateSelectedCoordinates(callback)
+    })
   }
 
   /** unlike getSelectedCoordinates, this returns all coordinates,
@@ -509,7 +511,7 @@ export default class Data extends Component<any, State> {
       pushToDataChanged: this.pushToDataChanged,
       setHoveredCommentCoordinate: this.setHoveredCommentCoordinate,
     }
-    return this.state.allCoordinates && this.state.data && this.state.labels ? (
+    return this.state.allCoordinates && this.state.data && this.state.labels && this.state.clusters ? (
       <Layout {...props} />
     ) : (
         <div style={{ padding: '1rem' }}>Loading data...</div>

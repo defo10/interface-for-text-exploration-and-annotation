@@ -266,13 +266,6 @@ export default function ClusterTable({
     const rowsSorted = stableSort(rows, getComparator(order, orderBy))
 
     useEffect(() => {
-        // select and show first four elements
-        setClustersToShow(
-            rowsSorted.slice(0, 4).map(row => row.label)
-        )
-    }, []) // only run on mount/unmount of component
-
-    useEffect(() => {
         rows = clustersToRows(other.clusters)
     }, [other.clusters]) // if clusters change, update rows
 
@@ -334,7 +327,7 @@ export default function ClusterTable({
                 </TableContainer>
                 <TablePagination
                     classes={classesTablePagination}
-                    rowsPerPageOptions={[10,20,45]}
+                    rowsPerPageOptions={[10, 20, 45]}
                     component="div"
                     count={rows.length}
                     rowsPerPage={rowsPerPage}
