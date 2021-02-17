@@ -1,4 +1,5 @@
 import { Button, Card, CardActions, CardContent, makeStyles } from '@material-ui/core'
+import Tooltip from '@material-ui/core/Tooltip'
 import _ from 'lodash'
 import React, { useState } from 'react'
 import { DataPoint } from '../../Data'
@@ -16,10 +17,12 @@ export type CommentProps = {
     /** i the the index of the comment in prop data */
     i: number,
     /** callback of cluster change for this comment, or null if not changed */
-    onMoveCluster: (newLabel: string | null, i: number) => void
+    onMoveCluster: (newLabel: string | null, i: number) => void,
+    /** is the comment the one of the representative */
+    isRepresentative?: boolean
 } & PropsForSidebar
 
-const useStyles = makeStyles<any, {backgroundColor: string}>((theme) => ({
+const useStyles = makeStyles<any, { backgroundColor: string }>((theme) => ({
     styleContainer: props => ({
         display: 'block',
         marginLeft: 0,
@@ -74,9 +77,9 @@ const useCardContentStyles = makeStyles(theme => ({
     }
 }))
 
-export default function Comment({ dense = false, data, i, onMoveCluster, added=false, removed=false, ...other }: CommentProps) {
-    const backgroundColor: string = added ? '#1d3d17' : removed ? '#3d171b' : "auto" 
-    const classes = useStyles({backgroundColor: backgroundColor})
+export default function Comment({ dense = false, data, i, onMoveCluster, added = false, removed = false, isRepresentative = false, ...other }: CommentProps) {
+    const backgroundColor: string = added ? '#1d3d17' : removed ? '#3d171b' : "auto"
+    const classes = useStyles({ backgroundColor: backgroundColor })
     const cardContentStyles = useCardContentStyles()
     const { publishedAt, authorName, cleaned } = data![i]
     const [showClusterChangeDialog, setShowClusterChangeDialog] = useState(false)
@@ -94,7 +97,7 @@ export default function Comment({ dense = false, data, i, onMoveCluster, added=f
     return (
         <Card onMouseEnter={showPoint} onMouseLeave={hidePoint} className={classes.styleContainer}>
             <CardContent classes={cardContentStyles}>
-                {dataPoint && <p style={{marginLeft: 0}} className={classes.styleDate}>{`from cluster ${dataPoint?.oldLabel.label_kmedoids} to ${dataPoint?.newLabel.label_kmedoids}`}</p>}
+                {dataPoint && <p style={{ marginLeft: 0 }} className={classes.styleDate}>{`from cluster ${dataPoint?.oldLabel.label_kmedoids} to ${dataPoint?.newLabel.label_kmedoids}`}</p>}
                 <div className={classes.styleMetaInfos}>
                     <p className={classes.styleUsername}>{authorName}</p>
                     <p className={classes.styleDate}>{publishedAt}</p>
@@ -102,7 +105,12 @@ export default function Comment({ dense = false, data, i, onMoveCluster, added=f
                 <p className={classes.styleComment}>{cleaned}</p>
             </CardContent>
             <CardActions>
-                <Button onClick={() => setShowClusterChangeDialog(true)}>Move to other Cluster</Button>
+                {isRepresentative
+                    ? (<Tooltip title="As this comment represents the whole cluster, it may not be moved. Use the Merge Clusters Field to merge the whole cluster with another.">
+                        <span><Button onClick={() => null} disabled>Move to other Cluster</Button></span>
+                    </Tooltip>)
+                    : <Button onClick={() => setShowClusterChangeDialog(true)}>Move to other Cluster</Button>
+                }
             </CardActions>
             <ClusterChangeCommentDialog
                 open={showClusterChangeDialog}

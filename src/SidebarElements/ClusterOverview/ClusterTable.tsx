@@ -190,6 +190,8 @@ export default function ClusterTable({
     clustersToShow,
     setClustersToShow,
     selectCluster,
+    setSelectedDatum,
+    selectedCluster,
     ...other }: PropsClusterTable) {
 
     const classes = useStyles();
@@ -238,9 +240,12 @@ export default function ClusterTable({
     }
 
     const handleRowClick = (event: any, name: string) => {
-        if (event.target.nodeName === "INPUT") return // skip if over checkbox
-        selectCluster(name)
-        // click checkbox if not cliked yet
+        if (event.target.nodeName === "INPUT") return // skip if over checkbox, which is handled by handleCheckboxClick
+        if (selectedCluster !== name) { // change detail view
+            setSelectedDatum(null)
+            selectCluster(name)
+        }
+        // click checkbox if not clicked yet
         const selectedIndex = clustersToShow.indexOf(name);
         let newSelected: string[] = [];
 

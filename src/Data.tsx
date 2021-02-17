@@ -226,7 +226,7 @@ export default class Data extends Component<any, State> {
           quality: -1
         }
       } else { // rename else
-        clusters_new[newLabel] = {...this.state.clusters[oldLabel]}
+        clusters_new[newLabel] = { ...this.state.clusters[oldLabel] }
       }
       delete clusters_new[oldLabel]
     }
@@ -366,21 +366,31 @@ export default class Data extends Component<any, State> {
    */
   async loadCoordinates(howMany: number) {
     var all_coordinates_full: NumNeighbors = {
-      '2': { '0.1': null, '0.2': null, '0.5': null, '0.9': null },
-      '5': { '0.1': null, '0.2': null, '0.5': null, '0.9': null },
-      '10': { '0.1': null, '0.2': null, '0.5': null, '0.9': null },
-      '50': { '0.1': null, '0.2': null, '0.5': null, '0.9': null },
+      '2': { '0.1': null, '0.2': null, '0.5': null, '0.9': null } as MinDist,
+      '5': { '0.1': null, '0.2': null, '0.5': null, '0.9': null } as MinDist,
+      '10': { '0.1': null, '0.2': null, '0.5': null, '0.9': null } as MinDist,
+      '50': { '0.1': null, '0.2': null, '0.5': null, '0.9': null } as MinDist,
     }
-    for (let num_neighbors of num_neighbors_arr) { // go over all num_neigbor parameters
-      for (let min_dist of min_dists_arr) { // and over all its min_dist variants
 
-        let scaled_coordinates: Coordinate[] = []
-        const fetched = await fetch(`${process.env.PUBLIC_URL}/coordinates/coordinates_supervised.${num_neighbors}.${min_dist}.json`)
-        const coordinates: Coordinate[] = await fetched.json()
-        scaled_coordinates = this.scaleEmbeddings(coordinates)
-        all_coordinates_full[num_neighbors][min_dist] = scaled_coordinates
-      }
-    }
+    // creates a combination of all above, i.e. [['2', '0.1'], ['2', '0.2'], ...]
+    const allParamsPairs = Object.keys(all_coordinates_full).flatMap(
+      numNeigbor => Object.keys(all_coordinates_full['2'])
+        .map(mindistEl => [numNeigbor, mindistEl])
+    )
+
+    const allPromisesParamPairs: Promise<boolean>[] = allParamsPairs.map(paramaterPair => {
+      const num_neighbors = paramaterPair[0]
+      const min_dist = paramaterPair[1]
+      return fetch(`${process.env.PUBLIC_URL}/coordinates/coordinates_supervised.${num_neighbors}.${min_dist}.json`)
+        .then((fetched: Response) => fetched.json())
+        .then((coordinates: Coordinate[]) => {
+          const scaled_coordinates: Coordinate[] = this.scaleEmbeddings(coordinates)
+          all_coordinates_full[num_neighbors][min_dist] = scaled_coordinates
+          return true
+        })
+    })
+
+    await Promise.all(allPromisesParamPairs)
 
     return this.setState({
       allCoordinatesFull: all_coordinates_full,

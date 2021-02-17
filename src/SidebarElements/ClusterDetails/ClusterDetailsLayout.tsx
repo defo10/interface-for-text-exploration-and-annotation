@@ -122,7 +122,7 @@ export default function ClusterDetailsLayout(props: ClusterDetailsLayoutProps) {
                     </>
                 )}
                 {hasRepresentative && buildHeadlineAndInfo('Cluster-Representative', 'The most centrally located point in the cluster.')}
-                {hasRepresentative && <Comment onMoveCluster={onMoveCluster} i={props.clusters[props.selectedCluster!].medoid || 0} {...props} />}
+                {hasRepresentative && <Comment onMoveCluster={onMoveCluster} isRepresentative i={props.clusters[props.selectedCluster!].medoid || 0} {...props} />}
                 {otherRepresentatives && buildHeadlineAndInfo('Overview-Comments', 'Distinct comments of this cluster, giving an overview of all comments of this cluster.')}
                 {otherRepresentatives && props.clusters[props.selectedCluster!].representatives.map(
                     reprs_index => (
