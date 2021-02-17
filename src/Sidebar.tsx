@@ -1,14 +1,8 @@
-import React, { Component } from 'react'
-import Comment from './SidebarElements/ClusterDetails/Comment'
-import Separator from './SidebarElements/Separator'
-import Select from './SidebarElements/Select'
-import ClusterMerger from './SidebarElements/ClusterMerger'
-import ClusterOverview, { PropsForClusterOverview } from './SidebarElements/ClusterOverview/ClusterOverview'
-import ClusterDetails from './SidebarElements/ClusterDetails'
-import { PropsFromData, DataPoint } from './Data'
-import SlidersParamter from './ProjectionElements/Sliders'
-import { LayoutState } from './Layout'
+import React from 'react'
 import { createUseStyles } from 'react-jss'
+import { PropsFromData } from './Data'
+import { LayoutState } from './Layout'
+import ClusterOverview from './SidebarElements/ClusterOverview/ClusterOverview'
 
 const buildStyles = createUseStyles({
   sidebarContainerLeft: {

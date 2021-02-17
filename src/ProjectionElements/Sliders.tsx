@@ -1,9 +1,8 @@
-import React, { Component, useState } from 'react'
-import { NumNeighbors, PropsFromData, num_neighbors_arr, ParameterNumNeighbors, ParameterMinDist } from '../Data'
+import Slider from '@material-ui/core/Slider';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import Slider from '@material-ui/core/Slider';
-import Toolbar from '@material-ui/core/Toolbar';
+import React from 'react';
+import { ParameterMinDist, ParameterNumNeighbors, PropsFromData } from '../Data';
 
 const useStyles = makeStyles((theme) => ({
     margin: {

@@ -1,22 +1,14 @@
+import * as _ from 'lodash'
 import React, { Component } from 'react'
-import Sidebar, { PropsForSidebar } from './Sidebar'
-import Sidebar2 from './Sidebar2'
+import SplitPane from 'react-split-pane'
+import { PropsFromData } from './Data'
 import Projection, { PropsForProjection } from './ProjectionElements/Projection'
 import ProjectionParameters from './ProjectionElements/ProjectionParameters'
-import About from './About'
-import * as _ from 'lodash'
-import SearchBar from "material-ui-search-bar"
-import { PropsFromData, Label } from './Data'
-import { least } from 'd3'
-import SlidersParamter from './ProjectionElements/Sliders'
-import SplitPane from 'react-split-pane'
+import Sidebar, { PropsForSidebar } from './Sidebar'
+import Sidebar2 from './Sidebar2'
 
 const minSizePanel = 350
 
-// padding constructor
-function p(tb: number, lr: number) {
-  return `${tb}px ${lr}px`
-}
 
 export type LayoutState = {
   ww: number | null,

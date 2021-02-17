@@ -1,7 +1,7 @@
-import React, { Component } from 'react'
-import './App.css'
-import Data from './Data'
-import { createMuiTheme, ThemeProvider, responsiveFontSizes } from '@material-ui/core/styles';
+import { createMuiTheme, responsiveFontSizes, ThemeProvider } from '@material-ui/core/styles';
+import React, { Component } from 'react';
+import './App.css';
+import Data from './Data';
 
 
 const themeForMaterialComponents = responsiveFontSizes(createMuiTheme({

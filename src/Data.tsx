@@ -1,8 +1,8 @@
-import React, { Component, useState } from 'react'
-import Layout from './Layout'
-import * as _ from 'lodash'
 import * as d3 from 'd3'
+import * as _ from 'lodash'
 import lunr from 'lunr'
+import React, { Component } from 'react'
+import Layout from './Layout'
 
 
 export type Coordinate = {
