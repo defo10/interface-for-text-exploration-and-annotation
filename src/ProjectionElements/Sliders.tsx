@@ -9,7 +9,8 @@ const useStyles = makeStyles((theme) => ({
         height: theme.spacing(3),
     },
     slider: {
-        color: theme.palette.text.primary
+        color: theme.palette.text.primary,
+        minWidth: '14em'
     }
 }));
 

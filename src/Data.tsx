@@ -447,15 +447,29 @@ export default class Data extends Component<any, State> {
     })
   }
 
+  /** normalizes cluster quality so that values are in the range [0,1] */
+  _normalize_clusters(clusters: Cluster) {
+    let maxQuality = 0
+    for (let label in clusters) {
+      maxQuality = clusters[label].quality > maxQuality ? clusters[label].quality : maxQuality
+    }
+    let scale = d3.scaleLinear().domain([0, maxQuality]).range([0, 1])
+    for (let label in clusters) {
+      clusters[label].quality = scale(clusters[label].quality)
+    }
+  }
+
   /** sets the quality for each cluster.
+   * currently named as density
    */
   calc_quality() {
     // using average of squared euclidean distances
     const clusters = { ...this.state.clusters }
     for (let label in clusters) {
-      if (!clusters[label].medoid) return // shouldnt happen
+      if (!clusters[label].medoid) return // doesnt happen
       const coordinates = this._getAllSelectedCoordinates()
       let medoid_pos = coordinates[clusters[label].medoid!]
+
       let distances = coordinates.map(
         (coord) => {
           if (this.state.labels?.[coord.index].label_kmedoids != label) return
@@ -464,8 +478,11 @@ export default class Data extends Component<any, State> {
           return sqrd_eucl_dist
         }
       )
+
       clusters[label].quality = _.mean(distances)
     }
+
+    this._normalize_clusters(clusters)
 
     this.setState({
       clusters: clusters

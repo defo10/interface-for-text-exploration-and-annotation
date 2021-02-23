@@ -61,7 +61,7 @@ export default function ClusterChangeCommentDialog({
                         if (cluster === labels![i].label_kmedoids) return
                         return (
                             <ListItem onClick={() => onMoveCluster(cluster, i)} button key={`clusterpicker-${cluster}`}>
-                                <ListItemText primary={cluster} secondary={`size: ${clusters[cluster].size}    density: ${clusters[cluster].quality.toFixed(3)}`} />
+                                <ListItemText primary={cluster} secondary={`size: ${clusters[cluster]?.size || 'N/A'}    density: ${clusters[cluster]?.quality.toFixed(3) || 'N/A'}`} />
                             </ListItem>)
                     })
                 }

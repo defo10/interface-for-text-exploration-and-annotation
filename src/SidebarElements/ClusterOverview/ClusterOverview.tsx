@@ -35,8 +35,8 @@ const useStyles = makeStyles(theme => ({
  */
 export default function ClusterOverview(props: PropsForClusterOverview) {
     const classes = useStyles()
-    const expandSentence = "Click to expand cluster merger"
-    const minimizeSentence = "Click to minimize cluster merger"
+    const expandSentence = "Click to expand"
+    const minimizeSentence = "Click to minimize"
     const [mergeExplainer, setMergeExplainer] = useState<string>(expandSentence)
 
     const buildHeadlineAndInfo = (headline: string, caption: string | null) => (
@@ -69,7 +69,7 @@ export default function ClusterOverview(props: PropsForClusterOverview) {
                     <ClusterMerger {...props} />
                 </AccordionDetails>
             </Accordion>
-            {buildHeadlineAndInfo('Clusters-Overview', "Browse through all clusters. Check the one's you'd like to see in the visualization. Click on a row to see its details.")}
+            {buildHeadlineAndInfo('Clusters Overview', "Browse through all clusters. Check the one's you'd like to see in the visualization. Click on a row to see its details.")}
             <ClusterTable {...props} />
         </>
     )

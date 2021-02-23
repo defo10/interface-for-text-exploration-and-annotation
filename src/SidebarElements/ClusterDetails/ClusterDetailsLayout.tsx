@@ -113,7 +113,7 @@ export default function ClusterDetailsLayout(props: ClusterDetailsLayoutProps) {
                 {dataAddedToThisCluster.length != 0 && buildComments(dataAddedToThisCluster as DataPoint[], 'added')}
                 {dataRemovedFromThisCluster.length != 0 && buildHeadlineAndInfo('Removed from this Cluster', 'Here are all comments removed from this cluster by you in this cycle.')}
                 {dataRemovedFromThisCluster.length != 0 && buildComments(dataRemovedFromThisCluster as DataPoint[], 'removed')}
-                {buildHeadlineAndInfo('Cluster-infos', 'Meta-information about the cluster you selected.')}
+                {buildHeadlineAndInfo('Cluster Infos', 'Meta-information about the cluster you selected.')}
                 <MetaInfo selectedClusterInfo={props.clusters[selectedCluster]} {...props} />
                 {selected_datum && (
                     <>
@@ -121,15 +121,15 @@ export default function ClusterDetailsLayout(props: ClusterDetailsLayoutProps) {
                         <Comment onMoveCluster={onMoveCluster} i={selected_datum} {...props} />
                     </>
                 )}
-                {hasRepresentative && buildHeadlineAndInfo('Cluster-Representative', 'The most centrally located point in the cluster.')}
+                {hasRepresentative && buildHeadlineAndInfo('Cluster Representative', 'The most centrally located point in the cluster.')}
                 {hasRepresentative && <Comment onMoveCluster={onMoveCluster} isRepresentative i={props.clusters[props.selectedCluster!].medoid || 0} {...props} />}
-                {otherRepresentatives && buildHeadlineAndInfo('Overview-Comments', 'Distinct comments of this cluster, giving an overview of all comments of this cluster.')}
+                {otherRepresentatives && buildHeadlineAndInfo('Overview Comments', 'Distinct comments of this cluster, giving an overview of all comments of this cluster.')}
                 {otherRepresentatives && props.clusters[props.selectedCluster!].representatives.map(
                     reprs_index => (
                         <Comment key={`representative-${reprs_index}`} onMoveCluster={onMoveCluster} i={reprs_index} {...props} />
                     )
                 )}
-                {buildHeadlineAndInfo('Other comments', 'A sample of other comments of this cluster.')}
+                {buildHeadlineAndInfo('Other Comments', 'A sample of other comments of this cluster.')}
                 {buildComments(dataOfCluster, 'normal')}
             </>)
             : <div className={classes.coverSidebar} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
