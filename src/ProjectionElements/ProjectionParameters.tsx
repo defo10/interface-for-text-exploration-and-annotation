@@ -32,7 +32,7 @@ export default function ProjectionParameters(props: PropsForProjection) {
             <SlidersParamter {...props} />
             <div style={{padding: '0 16px'}}>
                 <Typography variant="subtitle2" style={{ display: 'inline', paddingRight: '16px' }}>
-                    Data Points to show:
+                    Sample Size of Comments to Visualize
                 </Typography>
                 <input name="numDataPoints" type="text" pattern="[0-9]*"
                     style={{ width: '4em', display: 'inline' }}

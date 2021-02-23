@@ -129,8 +129,6 @@ class Layout extends Component<PropsFromData, LayoutState> {
     let font_size = 16
     sidebar_orientation = 'vertical'
 
-    let grem = font_size * line_height
-
     const propsForSidebar: PropsForSidebar = {
       ...this.props,
       ...this.state,
@@ -138,6 +136,11 @@ class Layout extends Component<PropsFromData, LayoutState> {
       selectCluster: this.selectCluster,
       sidebar_orientation: sidebar_orientation,
     }
+
+    // show all coordinates to show in array of array which is more performant
+    const allCoordinatesAsArrayFilt = this.props.allCoordinates!
+      .filter(d => this.props.clustersToShow.includes(this.props.labels?.[d.index].label_kmedoids || ""))
+      .map(d => [d.x, d.y, d.index])
 
     const propsForProjection: PropsForProjection = {
       ...this.props,
@@ -149,6 +152,7 @@ class Layout extends Component<PropsFromData, LayoutState> {
       selected_datum: this.state.selected_datum,
       searchResultIndices: this.state.searchResultIndices,
       selectCluster: this.selectCluster,
+      allCoordinatesAsArray: allCoordinatesAsArrayFilt
     }
 
     /* code for search bar, add above splitpane

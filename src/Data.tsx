@@ -1,3 +1,4 @@
+import { constants } from 'buffer'
 import * as d3 from 'd3'
 import * as _ from 'lodash'
 import lunr from 'lunr'
@@ -69,7 +70,7 @@ type State = {
   /** this has actually all coordinates, unlike allCoordinates,
    * which has a sample for all parameters */
   allCoordinatesFull: NumNeighbors | null,
-  /** samples to show for coordinate parameters */
+  /** samples to show of selected coordinate parameters */
   allCoordinates: Coordinate[] | null,
   coordinatesParameters: {
     numNeighborsParameter: ParameterNumNeighbors,
@@ -135,11 +136,11 @@ export default class Data extends Component<any, State> {
         numNeighborsParameter: '10',
         minDistParameter: '0.1'
       },
-      coordinates_to_show: 400,
+      coordinates_to_show: 4000,
       data: null,
       labels: null,
       searchIndex: null,
-      clustersToShow: ["12", "4", "1", "31"],  // only select four biggest on mount
+      clustersToShow: ["12", "4", "1", "31", "15"],  // only select five biggest on mount
       clusters: {},
       dataChanged: [],
       hoveredCommentCoordinate: null,
@@ -258,7 +259,7 @@ export default class Data extends Component<any, State> {
     const numNeighbors = this.state.coordinatesParameters.numNeighborsParameter
     const minDist = this.state.coordinatesParameters.minDistParameter
 
-    const rand_indices = this.getRandomIndices(this.state.labels!, this.state.clustersToShow, this.state.coordinates_to_show)
+    const rand_indices = this.getRandomIndices(this.state.labels!, this.state.coordinates_to_show)
     const coordinates = rand_indices.map(i => this.state.allCoordinatesFull![numNeighbors][minDist]![i])
 
     this.setState({
@@ -269,8 +270,6 @@ export default class Data extends Component<any, State> {
   setClustersToShow(clusters: string[], callback?: () => void) {
     this.setState({
       clustersToShow: clusters
-    }, () => {
-      this.updateSelectedCoordinates(callback)
     })
   }
 
@@ -325,25 +324,19 @@ export default class Data extends Component<any, State> {
   /**
    * picks n random elements from arr without duplicates.
    * 
-   * if bigger is longer than 4/5th of arr's length, random indices of the lenght of the whole
+   * if n is longer than 4/5th of arr's length, random indices of the lenght of the whole
    * list @param arr is  returned as a random picks would take too many tries to find new indices.
    * 
    * modified from
    * https://stackoverflow.com/questions/19269545/how-to-get-a-number-of-random-elements-from-an-array
    * 
    * @param {*} arr the original giving the shape
-   * @param clustersToShow is an array of clusters to pick from
    * @param {*} n how many to pick from
    */
-  getRandomIndices(arr: any[], clustersToShow: string[], n: number) {
-    let indices_arr = Array.from(Array(arr.length).keys()) // why so difficult, js?
+  getRandomIndices(arr: any[], n: number) {
+    const indices_arr = Array.from(Array(arr.length).keys()) // why so difficult, js?
 
-    indices_arr = indices_arr.filter(i => {
-      if (!this.state.labels) return false
-      return clustersToShow.includes(this.state.labels[i].label_kmedoids)
-    })
-
-    if (n > indices_arr.length * 4 / 5) {
+    if (n > indices_arr.length * 3 / 5) {
       return indices_arr
     }
 
@@ -399,6 +392,7 @@ export default class Data extends Component<any, State> {
 
   async reloadCoordinatesWithSize(event: React.ChangeEvent<HTMLInputElement>, callback?: () => void) {
     let size = parseInt(event.target.value) || 0
+    size = size > 3/5 * (this.state.data?.length || 0) ? (this.state.data?.length || 0) : size
 
     this.setState({
       coordinates_to_show: size

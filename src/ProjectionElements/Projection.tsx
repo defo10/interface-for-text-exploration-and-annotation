@@ -15,12 +15,20 @@ export type PropsForProjection = {
   searchResultIndices: object & {
     [key: string]: any | null
   },
+  /** this is the same as allCoordinates with only clusters selected to show, but
+   * arranged as array of arrays of form [x, y, index].
+   * This increases the performance substantially
+   * 
+   * its actually a number[] but ts was giving errors when unpacking those
+  */
+  allCoordinatesAsArray: any[]
 } & PropsFromData
 
 
 class Projection extends Component<PropsForProjection, {}> {
   ref: SVGSVGElement | null = null
   svg: d3.Selection<SVGSVGElement, any, null, undefined> | null = null
+  group: d3.Selection<SVGGElement, any, null, undefined> | null = null
   scaleTransform: any = null
   zoomBehavior: ZoomBehavior<SVGSVGElement, Coordinate> | null = null
 
@@ -29,42 +37,31 @@ class Projection extends Component<PropsForProjection, {}> {
     this.state = {}
   }
 
-  /**
-   * only show given coordinates that are in clustersToShow
-   * @param coords 
-   * @param clustersToShow 
-   */
-  getIntersectionCoordinatesClustersToShow(coords: Coordinate[], clustersToShow: string[]) {
-    return coords.filter(
-      (coord: Coordinate) => {
-        let labelOfCoord = this.props.labels![coord.index].label_kmedoids
-        if (clustersToShow.includes(`${labelOfCoord}`)) return true
-        return false
-      }
-    ) as Coordinate[]
-  }
-
   /** 
    * draws scatter plot
    */
   drawScatterPlot() {
     if (!this.ref) return
 
-    const { width, height, setSelectedDatum, allCoordinates,
+    const { width, height, setSelectedDatum, allCoordinatesAsArray,
       clustersToShow, selectCluster, labels } = this.props
-    this.svg = d3.select(this.ref)
+    this.svg = !this.svg ? d3.select(this.ref) : this.svg
+    this.group = !this.group
+      ? this.svg.append('g')
+      : this.group
 
-
-    const coordsToShow = this.getIntersectionCoordinatesClustersToShow(allCoordinates!, clustersToShow)
+    const coordsToShow = allCoordinatesAsArray
     if (coordsToShow.length === 0) return this.svg.selectAll('circle').remove()
 
-    const circles = this.svg.selectAll("circle")
+    const circles = this.group.selectAll("circle")
       .data(coordsToShow)
       .join("circle")
-      .attr('id', d => d.index)
-      .attr("transform", d => `translate(${d.x}, ${d.y})`)
+      .attr('id', ([x, y, index]) => index)
+      .attr("cx", ([x, y, index]) => x)
+      .attr("cy", ([x, y, index]) => y)
+      .attr("r", 0.5)
+      .attr('fill-opacity', 0.5)
       .attr("fill", 'white')
-      .attr("r", 3)
 
     // this click event causes the react lifecycle method componentDidUpdate
     // to be called. There, we'll update the colors. (the props in this
@@ -76,7 +73,7 @@ class Projection extends Component<PropsForProjection, {}> {
     })
 
     // zoom behavior
-    this.zoomBehavior = this.getZoomBehavior(circles)
+    this.zoomBehavior = this.getZoomBehavior(this.group)
     this.svg.call(this.zoomBehavior)
 
     // start with scaled up init view if first time, else take previours scale state 
@@ -93,13 +90,10 @@ class Projection extends Component<PropsForProjection, {}> {
    * @returns a zoomBehavior function, to be called on the node on which this behavior
    * should be bound to.
    */
-  getZoomBehavior(selection: d3.Selection<any | null, Coordinate, any | null, any | null>): ZoomBehavior<any, any> {
-    return d3.zoom().on("zoom", (event) => {
-      this.scaleTransform = event.transform
-      selection.attr("transform", (d: Coordinate) => {
-        let coordinateAsArray = [d.x, d.y]
-        return `translate(${event.transform.apply(coordinateAsArray)})`
-      })
+  getZoomBehavior(selection: d3.Selection<any | null, any, any | null, any | null>): ZoomBehavior<any, any> {
+    return d3.zoom().on("zoom", ({ transform }) => {
+      this.scaleTransform = transform
+      selection.attr("transform", transform)
     })
   }
 
@@ -125,46 +119,46 @@ class Projection extends Component<PropsForProjection, {}> {
    * to its cluster have distinct colors
    */
   updateColorPoints() {
-    const { selected_datum, labels, allCoordinates, clustersToShow } = this.props
-    if (!this.svg || !labels) return
+    const { selected_datum, labels, allCoordinatesAsArray, clustersToShow } = this.props
+    if (!this.svg || !labels || !this.group) return
 
-    const coordsToShow = this.getIntersectionCoordinatesClustersToShow(allCoordinates!, clustersToShow)
+    const coordsToShow = allCoordinatesAsArray
     if (coordsToShow.length === 0) return this.svg.selectAll('circle').remove()
 
 
-    this.svg.selectAll('circle')
+    this.group.selectAll('circle')
       .data(coordsToShow)
-      .attr('fill', d => {
-        if (d.index == selected_datum) return 'cyan'
-        if (this.props.selectedCluster == labels[d.index].label_kmedoids) return 'green'
+      .attr('fill', ([x, y, index]) => {
+        if (index == selected_datum) return 'cyan'
+        if (this.props.selectedCluster == labels[index].label_kmedoids) return 'green'
         return 'white'
       })
   }
 
   highlightSearchResults() {
-    if (!this.svg) return
-    const { selected_datum, labels, labelChoice, allCoordinates, searchResultIndices, clustersToShow } = this.props
-    const coordsToShow = this.getIntersectionCoordinatesClustersToShow(allCoordinates!, clustersToShow)
-    if (coordsToShow.length === 0) return this.svg.selectAll('circle').remove()
+    if (!this.svg || !this.group) return
+    const { selected_datum, labels, labelChoice, allCoordinatesAsArray, searchResultIndices, clustersToShow } = this.props
+    const coordsToShow = allCoordinatesAsArray
+    if (coordsToShow.length === 0) return this.group.selectAll('circle').remove()
 
-    this.svg.selectAll('circle')
+    this.group.selectAll('circle')
       .data(coordsToShow)
-      .attr('fill', d => {
-        if (searchResultIndices[d.index]) return 'green'
+      .attr('fill', ([x, y, index]) => {
+        if (searchResultIndices[index]) return 'green'
         return 'white'
       })
   }
 
   /** highlights the comment the user hovers over in the detail pane */
   showHoveredComment() {
-    const { selected_datum, labels, allCoordinates, clustersToShow, hoveredCommentCoordinate } = this.props
-    if (!this.svg || !labels) return
+    const { selected_datum, labels, allCoordinatesAsArray, clustersToShow, hoveredCommentCoordinate } = this.props
+    if (!this.svg || !labels || !this.group) return
 
-    var coordsToShow = this.getIntersectionCoordinatesClustersToShow(allCoordinates!, clustersToShow)
-    if (coordsToShow.length === 0) return this.svg.selectAll('circle').remove()
+    var coordsToShow = allCoordinatesAsArray
+    if (coordsToShow.length === 0) return this.group.selectAll('circle').remove()
 
-    this.svg.selectAll('circle')
-      .data(hoveredCommentCoordinate ? [...coordsToShow, hoveredCommentCoordinate] : coordsToShow, (d: any) => d.index)
+    this.group.selectAll('circle')
+      .data(hoveredCommentCoordinate && coordsToShow && coordsToShow.length > 0 ? [...coordsToShow, hoveredCommentCoordinate] : coordsToShow, ([x, y, index]) => index)
       .join(
         enter => enter.append('circle')
           .attr('fill', 'cyan')
@@ -181,11 +175,11 @@ class Projection extends Component<PropsForProjection, {}> {
       const scaleFactor = this.getInitScale(this.props.width, this.props.height)
 
       this.svg?.transition()
-      .duration(1000)
-      .call(
-        this.zoomBehavior.transform,
-        d3.zoomIdentity.scale(scaleFactor.k)
-      )
+        .duration(1000)
+        .call(
+          this.zoomBehavior.transform,
+          d3.zoomIdentity.scale(scaleFactor.k)
+        )
       return
     }
 
@@ -196,7 +190,7 @@ class Projection extends Component<PropsForProjection, {}> {
     const allCoordsOfSelectedCluster = this.props.labels?.filter(
       (el, i) => (el.label_kmedoids === this.props.selectedCluster) ? true : false)
       .map((el, i) => this.props.allCoordinatesFull?.[numNeighbors]?.[minDist]?.[i]!)
-    
+
     const mean_x = _.meanBy(allCoordsOfSelectedCluster, 'x') || 15
     const mean_y = _.meanBy(allCoordsOfSelectedCluster, 'y') || 15
     // TODO max x and max y, min x and min y, then scale factor just like below
@@ -205,7 +199,7 @@ class Projection extends Component<PropsForProjection, {}> {
     const mean_center_y = this.props.height / 2 - mean_y
     const delta_x = _.maxBy(allCoordsOfSelectedCluster, 'x')?.x || 0 - (_.minBy(allCoordsOfSelectedCluster, 'x')?.x || 0)
     const delta_y = _.maxBy(allCoordsOfSelectedCluster, 'y')?.y || 0 - (_.minBy(allCoordsOfSelectedCluster, 'y')?.y || 0)
-    const scaleFactor = Math.min(this.props.width/delta_x, this.props.height/delta_y)
+    const scaleFactor = Math.min(this.props.width / delta_x, this.props.height / delta_y)
 
     this.svg?.transition()
       .duration(500)
