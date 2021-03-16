@@ -69,7 +69,7 @@ function EnhancedTableHead(props: any) {
 
     const headCells = [
         { id: 'label', numeric: false, disablePadding: true, label: 'Cluster Name' },
-        { id: 'size', numeric: true, disablePadding: false, label: 'Size' },
+        { id: 'size', numeric: true, disablePadding: false, label: 'Size (in\u00A0%)' },
         { id: 'metric', numeric: true, disablePadding: false, label: 'Density' },
     ];
 
