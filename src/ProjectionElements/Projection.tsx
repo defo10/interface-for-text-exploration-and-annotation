@@ -31,6 +31,8 @@ class Projection extends Component<PropsForProjection, {}> {
   group: d3.Selection<SVGGElement, any, null, undefined> | null = null
   scaleTransform: any = null
   zoomBehavior: ZoomBehavior<SVGSVGElement, Coordinate> | null = null
+  fillOpacity = 0.8
+  hoverColor = 'rgba(245, 124, 0, 1)' // orange kinda
 
   constructor(props: PropsForProjection) {
     super(props)
@@ -54,13 +56,13 @@ class Projection extends Component<PropsForProjection, {}> {
     if (coordsToShow.length === 0) return this.svg.selectAll('circle').remove()
 
     const circles = this.group.selectAll("circle")
-      .data(coordsToShow)
+      .data(coordsToShow, ([x, y, index]) => index)
       .join("circle")
       .attr('id', ([x, y, index]) => index)
       .attr("cx", ([x, y, index]) => x)
       .attr("cy", ([x, y, index]) => y)
       .attr("r", 0.5)
-      .attr('fill-opacity', 0.5)
+      .attr('fill-opacity', this.fillOpacity)
       .attr("fill", 'white')
 
     // this click event causes the react lifecycle method componentDidUpdate
@@ -127,11 +129,16 @@ class Projection extends Component<PropsForProjection, {}> {
 
 
     this.group.selectAll('circle')
-      .data(coordsToShow)
+      .data(coordsToShow, ([x, y, index]) => index)
       .attr('fill', ([x, y, index]) => {
         if (index == selected_datum) return 'cyan'
-        if (this.props.selectedCluster == labels[index].label_kmedoids) return 'green'
+        if (this.props.selectedCluster == labels[index].label_kmedoids) return this.hoverColor // orange kinda
         return 'white'
+      })
+      .attr('fill-opacity', ([x, y, index]) => {
+        if (index == selected_datum) return 1
+        if (this.props.selectedCluster == labels[index].label_kmedoids) return 0.8
+        return this.fillOpacity
       })
   }
 
@@ -142,9 +149,9 @@ class Projection extends Component<PropsForProjection, {}> {
     if (coordsToShow.length === 0) return this.group.selectAll('circle').remove()
 
     this.group.selectAll('circle')
-      .data(coordsToShow)
+      .data(coordsToShow, ([x, y, index]) => index)
       .attr('fill', ([x, y, index]) => {
-        if (searchResultIndices[index]) return 'green'
+        if (searchResultIndices[index]) return this.hoverColor
         return 'white'
       })
   }
@@ -157,13 +164,18 @@ class Projection extends Component<PropsForProjection, {}> {
     var coordsToShow = allCoordinatesAsArray
     if (coordsToShow.length === 0) return this.group.selectAll('circle').remove()
 
+    if (hoveredCommentCoordinate) coordsToShow.push([hoveredCommentCoordinate?.x, hoveredCommentCoordinate?.y, hoveredCommentCoordinate?.index])
+
     this.group.selectAll('circle')
-      .data(hoveredCommentCoordinate && coordsToShow && coordsToShow.length > 0 ? [...coordsToShow, hoveredCommentCoordinate] : coordsToShow, ([x, y, index]) => index)
+      .data(coordsToShow, ([x, y, index]) => index)
       .join(
         enter => enter.append('circle')
           .attr('fill', 'cyan')
-          .attr('r', '5')
-          .attr("transform", d => `translate(${this.scaleTransform.k * d.x + this.scaleTransform.x}, ${this.scaleTransform.k * d.y + this.scaleTransform.y})`)
+          .attr('fill-opacity', '1')
+          .attr('r', 1)
+          .attr('id', ([x, y, index]) => index)
+          .attr("cx", ([x, y, index]) => x)
+          .attr("cy", ([x, y, index]) => y)
       )
   }
 

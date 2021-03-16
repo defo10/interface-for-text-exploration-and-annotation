@@ -48,6 +48,12 @@ export default function ClusterOverview(props: PropsForClusterOverview) {
         </div>
     )
 
+    const legend = (
+        <div className={classes.padding}>
+            <Typography variant='body2' style={{ backgroundColor: 'rgba(255, 255, 255, 0.15)', padding: '8px'}}>Checked cluster comments are white in the visualization</Typography>
+            <Typography variant='body2' style={{ backgroundColor: 'rgba(245, 124, 0, 0.7)', padding: '8px' }}>The selected cluster's comments are orange in the visualization</Typography>
+        </div>)
+
     return (
         <>
             <Accordion className={classes.root} onChange={() => {
@@ -65,11 +71,12 @@ export default function ClusterOverview(props: PropsForClusterOverview) {
                     <Typography className={classes.heading}>Merge Clusters</Typography>
                     <Typography className={classes.secondaryHeading}>{mergeExplainer}</Typography>
                 </AccordionSummary>
-                <AccordionDetails style={{display: 'block'}}>
+                <AccordionDetails style={{ display: 'block' }}>
                     <ClusterMerger {...props} />
                 </AccordionDetails>
             </Accordion>
             {buildHeadlineAndInfo('Clusters Overview', "Browse through all clusters. Check the one's you'd like to see in the visualization. Click on a row to see its details.")}
+            {legend}
             <ClusterTable {...props} />
         </>
     )

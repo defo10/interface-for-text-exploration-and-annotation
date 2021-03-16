@@ -140,7 +140,7 @@ export default class Data extends Component<any, State> {
       data: null,
       labels: null,
       searchIndex: null,
-      clustersToShow: ["12", "4", "1", "31", "15"],  // only select five biggest on mount
+      clustersToShow: ["cluster 12", "cluster 4", "cluster 1", "cluster 31", "cluster 15"],  // only select five biggest on mount
       clusters: {},
       dataChanged: [],
       hoveredCommentCoordinate: null,
@@ -432,7 +432,7 @@ export default class Data extends Component<any, State> {
     let labels: Label[] = JSON.parse(await fetched.text())
     labels = labels.map(el => {
       return {
-        label_kmedoids: `${el.label_kmedoids}`
+        label_kmedoids: `cluster ${el.label_kmedoids}`
       }
     })
 
@@ -486,7 +486,7 @@ export default class Data extends Component<any, State> {
   /** loads cluster representatives from disk and creates clusters state */
   async loadClusters() {
     const fetchedReprs = await fetch(`${process.env.PUBLIC_URL}/cluster-representatives.json`)
-    const representatives: { [key: string]: number[] } = JSON.parse(await fetchedReprs.text())
+    const representatives: { [label: string]: number[] } = JSON.parse(await fetchedReprs.text())
 
     const fetchedMedoids = await fetch(`${process.env.PUBLIC_URL}/medoids.json`)
     const medoids: { medoids_indices: number }[] = JSON.parse(await fetchedMedoids.text())
@@ -494,9 +494,10 @@ export default class Data extends Component<any, State> {
     let clusters: Cluster = {}
 
     for (let orig_label in representatives) {
-      clusters[orig_label] = {
+      const changed_label = `cluster ${orig_label}`
+      clusters[changed_label] = {
         medoid: medoids[parseInt(orig_label)].medoids_indices,
-        representatives: representatives[orig_label],
+        representatives: representatives[parseInt(orig_label)],
         size: 0,
         quality: 0
       }

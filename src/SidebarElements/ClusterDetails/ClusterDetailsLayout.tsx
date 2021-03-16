@@ -113,8 +113,6 @@ export default function ClusterDetailsLayout(props: ClusterDetailsLayoutProps) {
                 {dataAddedToThisCluster.length != 0 && buildComments(dataAddedToThisCluster as DataPoint[], 'added')}
                 {dataRemovedFromThisCluster.length != 0 && buildHeadlineAndInfo('Removed from this Cluster', 'Here are all comments removed from this cluster by you in this cycle.')}
                 {dataRemovedFromThisCluster.length != 0 && buildComments(dataRemovedFromThisCluster as DataPoint[], 'removed')}
-                {buildHeadlineAndInfo('Cluster Infos', 'Meta-information about the cluster you selected.')}
-                <MetaInfo selectedClusterInfo={props.clusters[selectedCluster]} {...props} />
                 {selected_datum && (
                     <>
                         {buildHeadlineAndInfo('Selected Comment', 'The comment of the point clicked on.')}

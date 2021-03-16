@@ -18,7 +18,8 @@ import { PropsForSidebar } from '../../Sidebar';
 type Row = {
     label: string,
     size: number,
-    metric: string
+    metric: string,
+    sizePrct: string
 }
 
 type OrderBy = 'label' | 'size' | 'metric'
@@ -161,22 +162,12 @@ const useTablePaginationStyles = makeStyles((theme) => ({
 
 }))
 
-const useTableRowStyles = makeStyles((theme) => ({
-    selected: {
-        backgroundColor: 'rgba(63, 81, 181, 0.30) !important'
-    },
-    hover: {
-        '&:hover': {
-            backgroundColor: 'rgba(63, 81, 181, 0.1) !important'
-        }
-    }
-}))
 
-
-function clustersToRows(clusters: Cluster) {
-    let rows = []
+function clustersToRows(clusters: Cluster, sumComments: number) {
+    let rows: Row[] = []
     for (let label in clusters) {
-        rows.push({ 'label': label, 'size': clusters[label].size, 'metric': clusters[label].quality.toFixed(2) })
+        const sizePrct = (clusters[label].size * 100 / sumComments).toFixed(1)
+        rows.push({ 'label': label, 'size': clusters[label].size, 'metric': clusters[label].quality.toFixed(2), 'sizePrct': sizePrct })
     }
     return rows
 }
@@ -194,14 +185,13 @@ export default function ClusterTable({
     ...other }: PropsClusterTable) {
 
     const classes = useStyles();
-    const classesTableRow = useTableRowStyles()
     const classesTablePagination = useTablePaginationStyles()
     const [order, setOrder] = useState('desc');
     const [orderBy, setOrderBy] = useState('size' as OrderBy);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    rows = clustersToRows(other.clusters)
+    rows = clustersToRows(other.clusters, labels?.length || 0)
 
     const handleRequestSort = (event: any, property: OrderBy) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -270,8 +260,8 @@ export default function ClusterTable({
     const rowsSorted = stableSort(rows, getComparator(order, orderBy))
 
     useEffect(() => {
-        rows = clustersToRows(other.clusters)
-    }, [other.clusters]) // if clusters change, update rows
+        rows = clustersToRows(other.clusters, data?.length || 0)
+    }, [other.clusters, data]) // if clusters change, update rows
 
     return (
         <div>
@@ -299,6 +289,7 @@ export default function ClusterTable({
                                 .map((row: Row, index: number) => {
                                     const isItemSelected = isSelected(row.label);
                                     const labelId = `enhanced-table-checkbox-${index}`;
+                                    selectedCluster === row.label && console.log([selectedCluster, row.label])
                                     return (
                                         <TableRow
                                             hover
@@ -308,7 +299,7 @@ export default function ClusterTable({
                                             tabIndex={-1}
                                             key={row.label}
                                             selected={isItemSelected}
-                                            classes={classesTableRow}
+                                            style={selectedCluster === row.label ? {backgroundColor: 'rgba(245, 124, 0, 0.7)'} : {}}
                                         >
                                             <TableCell padding="checkbox">
                                                 <Checkbox
@@ -318,11 +309,11 @@ export default function ClusterTable({
                                                     onClick={(event) => handleCheckboxClick(event, row.label)}
                                                 />
                                             </TableCell>
-                                            <TableCell component="th" id={labelId} scope="row" padding="none" width={'70%'}>
+                                            <TableCell component="th" id={labelId} scope="row" padding="none">
                                                 {row.label}
                                             </TableCell>
-                                            <TableCell width={'10%'} align="right">{row.size}</TableCell>
-                                            <TableCell width={'10%'} align="right">{row.metric}</TableCell>
+                                            <TableCell align="right">{`${row.size} (${row.sizePrct})`}</TableCell>
+                                            <TableCell align="right">{row.metric}</TableCell>
                                         </TableRow>
                                     );
                                 })}
