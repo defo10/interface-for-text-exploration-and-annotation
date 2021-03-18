@@ -289,7 +289,6 @@ export default function ClusterTable({
                                 .map((row: Row, index: number) => {
                                     const isItemSelected = isSelected(row.label);
                                     const labelId = `enhanced-table-checkbox-${index}`;
-                                    selectedCluster === row.label && console.log([selectedCluster, row.label])
                                     return (
                                         <TableRow
                                             hover

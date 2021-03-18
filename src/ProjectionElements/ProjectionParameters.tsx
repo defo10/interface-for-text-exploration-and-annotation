@@ -1,9 +1,10 @@
 import React, { useState } from "react"
-import { CircularProgress, makeStyles, Theme, Typography } from '@material-ui/core'
+import { CircularProgress, makeStyles, Select, Theme, Typography } from '@material-ui/core'
 import SlidersParamter from "./Sliders"
 import { PropsFromData } from "../Data"
 import { truncate } from "lodash"
 import { PropsForProjection } from "./Projection"
+import NativeSelect from "@material-ui/core/NativeSelect"
 
 
 const useStyles = makeStyles<Theme, { width: number, isMouseOver: boolean }>(theme => ({
@@ -19,22 +20,15 @@ const useStyles = makeStyles<Theme, { width: number, isMouseOver: boolean }>(the
     },
 }))
 
+type SelectOptions = 500 | 4000 | 30000
+
 export default function ProjectionParameters(props: PropsForProjection) {
     const [isMouseOver, setIsMouseOver] = useState(false)
-    const [isReloadingCoordinates, setIsReloadingCoordinates] = useState(false)
-    const [coordinatesToLoad, setCoordinatesToLoad] = useState(props.coordinates_to_show)
+    const [optionSelected, selectOption] = useState(4000 as SelectOptions)
     const classes = useStyles({ width: props.width, isMouseOver: isMouseOver })
 
-    return (
-        <div className={classes.absoluteContainer}
-            onMouseEnter={() => setIsMouseOver(true)}
-            onMouseLeave={() => setIsMouseOver(false)}>
-            <SlidersParamter {...props} />
-            <div style={{padding: '0 16px'}}>
-                <Typography variant="subtitle2" style={{ display: 'inline', paddingRight: '16px' }}>
-                    Sample Size of Comments to Visualize
-                </Typography>
-                <input name="numDataPoints" type="text" pattern="[0-9]*"
+    /*
+    <input name="numDataPoints" type="text" pattern="[0-9]*"
                     style={{ width: '4em', display: 'inline' }}
                     value={coordinatesToLoad}
                     onChange={(e) => {
@@ -46,9 +40,36 @@ export default function ProjectionParameters(props: PropsForProjection) {
                         })
                     }}
                 ></input>
-                <CircularProgress style={{
-                    visibility: isReloadingCoordinates ? 'visible' : 'hidden',
-                    display: 'inline-block', marginLeft: '8px'}} size="1em"></CircularProgress>
+    */
+   
+    console.log("dis happening")
+
+    return (
+        <div className={classes.absoluteContainer}
+            onMouseEnter={() => setIsMouseOver(true)}
+            onMouseLeave={() => setIsMouseOver(false)}>
+            <SlidersParamter {...props} />
+            <div style={{ padding: '0 16px' }}>
+                <Typography variant="subtitle2" style={{ display: 'inline', paddingRight: '16px' }}>
+                    Sample Size of Comments to Visualize
+                </Typography>
+                <NativeSelect
+                    value={optionSelected}
+                    onChange={(e) => {
+                        const size = parseInt(e.target.value) || 0
+                        selectOption(size as SelectOptions)
+                        props.reloadCoordinatesWithSize(size)
+                    }}
+                >
+                    <option value={500}>500</option>
+                    <option value={4000}>4000</option>
+                    <option value={30000}>30000 (slow)</option>
+                </NativeSelect>
+                {props.coordsAreReloading &&
+                    <CircularProgress style={{
+                        display: 'inline-block', marginLeft: '8px'
+                    }} size="1em"></CircularProgress>
+                }
             </div>
         </div>
     )

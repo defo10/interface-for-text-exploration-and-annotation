@@ -12,6 +12,11 @@ const themeForMaterialComponents = responsiveFontSizes(createMuiTheme({
       dark: 'rgba(255, 255, 255, 1)',
       light: 'rgba(255, 255, 255, 1)'
     },
+    primary: {
+      main: 'rgba(255, 255, 255, 1)',
+      dark: 'rgba(255, 255, 255, 1)',
+      light: 'rgba(255, 255, 255, 1)'
+    },
     background: {
       paper: '#303030'
     },

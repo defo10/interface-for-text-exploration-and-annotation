@@ -72,6 +72,8 @@ type State = {
   allCoordinatesFull: NumNeighbors | null,
   /** samples to show of selected coordinate parameters */
   allCoordinates: Coordinate[] | null,
+  /** true iff coordinates are reloading */
+  coordsAreReloading: boolean,
   coordinatesParameters: {
     numNeighborsParameter: ParameterNumNeighbors,
     minDistParameter: ParameterMinDist,
@@ -91,8 +93,8 @@ type State = {
 }
 
 export type PropsFromData = {
-  /** reloads as many coordinates that are shown in Projection as specified in e */
-  reloadCoordinatesWithSize: (e: React.ChangeEvent<HTMLInputElement>, callback?: () => void) => void,
+  /** reloads newSize many coordinates that will be shown in Projection  */
+  reloadCoordinatesWithSize: (newSize: number, callback?: () => void) => void,
   setSelectedCoordinates: (numNeighbors: ParameterNumNeighbors, minDist: ParameterMinDist) => void,
   /**
    * 
@@ -132,6 +134,7 @@ export default class Data extends Component<any, State> {
     this.state = {
       allCoordinatesFull: null,
       allCoordinates: null,
+      coordsAreReloading: false,
       coordinatesParameters: {
         numNeighborsParameter: '10',
         minDistParameter: '0.1'
@@ -249,7 +252,9 @@ export default class Data extends Component<any, State> {
     })
   }
 
-  /** samples this.state.clustersToShow many coords from specified coordinates of parameter */
+  /** samples this.state.clustersToShow many coords from specified coordinates of parameter
+   * @param callback is called after allCoordinates is set
+   */
   updateSelectedCoordinates(callback?: () => void) {
     if (!this.state.allCoordinatesFull) {
       console.log('allCoordinates is null')
@@ -263,7 +268,7 @@ export default class Data extends Component<any, State> {
     const coordinates = rand_indices.map(i => this.state.allCoordinatesFull![numNeighbors][minDist]![i])
 
     this.setState({
-      allCoordinates: coordinates
+      allCoordinates: coordinates,
     }, callback)
   }
 
@@ -390,16 +395,16 @@ export default class Data extends Component<any, State> {
     }, this.calc_quality) // calc_quality doesnt do anything on first run
   }
 
-  async reloadCoordinatesWithSize(event: React.ChangeEvent<HTMLInputElement>, callback?: () => void) {
-    let size = parseInt(event.target.value) || 0
-    size = size > 3/5 * (this.state.data?.length || 0) ? (this.state.data?.length || 0) : size
+
+  async reloadCoordinatesWithSize(newSize: number, callback?: () => void) {
+    const size = newSize > 3 / 5 * (this.state.data?.length || 0) ? (this.state.data?.length || 0) : newSize
 
     this.setState({
-      coordinates_to_show: size
-    }, () => {
-      this.updateSelectedCoordinates(callback)
-    })
+      coordsAreReloading: true,
+      coordinates_to_show: size,
+    }, () => this.updateSelectedCoordinates(callback))
   }
+
 
   async loadDataAndSearchIndex() {
     const fetched = await fetch(`${process.env.PUBLIC_URL}/data.json`)
