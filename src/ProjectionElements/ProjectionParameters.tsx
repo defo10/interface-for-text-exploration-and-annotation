@@ -20,11 +20,11 @@ const useStyles = makeStyles<Theme, { width: number, isMouseOver: boolean }>(the
     },
 }))
 
-type SelectOptions = 500 | 4000 | 30000
+type SelectOptions = 500 | 1000 | 2000
 
 export default function ProjectionParameters(props: PropsForProjection) {
     const [isMouseOver, setIsMouseOver] = useState(false)
-    const [optionSelected, selectOption] = useState(4000 as SelectOptions)
+    const [optionSelected, selectOption] = useState(500 as SelectOptions)
     const classes = useStyles({ width: props.width, isMouseOver: isMouseOver })
 
     /*
@@ -42,8 +42,6 @@ export default function ProjectionParameters(props: PropsForProjection) {
                 ></input>
     */
    
-    console.log("dis happening")
-
     return (
         <div className={classes.absoluteContainer}
             onMouseEnter={() => setIsMouseOver(true)}
@@ -62,8 +60,8 @@ export default function ProjectionParameters(props: PropsForProjection) {
                     }}
                 >
                     <option value={500}>500</option>
-                    <option value={4000}>4000</option>
-                    <option value={30000}>30000 (slow)</option>
+                    <option value={1000}>1000</option>
+                    <option value={2000}>2000 (slow)</option>
                 </NativeSelect>
                 {props.coordsAreReloading &&
                     <CircularProgress style={{

@@ -139,7 +139,7 @@ class Layout extends Component<PropsFromData, LayoutState> {
 
     // show all coordinates to show in array of array which is more performant
     const allCoordinatesAsArrayFilt = this.props.allCoordinates!
-      .filter(d => this.props.clustersToShow.includes(this.props.labels?.[d.index].label_kmedoids || ""))
+      .filter(d => this.props.clustersToShow.includes(this.props.labels?.[d.index].label_kmedoids || "")) // only comments of clusters set visible
       .map(d => [d.x, d.y, d.index])
 
     const propsForProjection: PropsForProjection = {

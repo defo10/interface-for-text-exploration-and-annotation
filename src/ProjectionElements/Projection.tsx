@@ -39,10 +39,11 @@ class Projection extends Component<PropsForProjection, {}> {
     this.state = {}
   }
 
+
   /** 
    * draws scatter plot
    */
-  drawScatterPlot() {
+  async drawScatterPlot() {
     if (!this.ref) return
 
     const { width, height, setSelectedDatum, allCoordinatesAsArray,
@@ -53,16 +54,38 @@ class Projection extends Component<PropsForProjection, {}> {
       : this.group
 
     const coordsToShow = allCoordinatesAsArray
-    if (coordsToShow.length === 0) return this.svg.selectAll('circle').remove()
 
-    const circles = this.group.selectAll("circle")
+    const circles = await this.group.selectAll("circle")
       .data(coordsToShow, ([x, y, index]) => index)
-      .join("circle")
-      .attr('id', ([x, y, index]) => index)
-      .attr("cx", ([x, y, index]) => x)
-      .attr("cy", ([x, y, index]) => y)
+      .join(
+        enter => enter.append("circle")
+          .attr('id', ([x, y, index]) => index)
+          .attr("cx", ([x, y, index]) => x)
+          .attr("cy", ([x, y, index]) => y)
+          .attr('fill-opacity', 0.0)
+          .call(enter => enter
+            .transition()
+            .duration(500)
+            .delay((d, i) => i / this.props.coordinates_to_show * 200) // Dynamic delay (i.e. each item delays a little longer)
+            .attr('fill-opacity', this.fillOpacity)
+          )
+        ,
+        update => update
+          .call(update => update
+            .transition()
+            .duration(2000)
+            .attr("cx", ([x, y, index]) => x)
+            .attr("cy", ([x, y, index]) => y)
+          ),
+        exit => exit
+          .call(text => text.transition()
+            .duration(500)
+            .delay((d, i) => i / this.props.coordinates_to_show * 200) // Dynamic delay (i.e. each item delays a little longer)
+            .remove()
+            .attr('fill-opacity', 0)
+          )
+      )
       .attr("r", 0.5)
-      .attr('fill-opacity', this.fillOpacity)
       .attr("fill", 'white')
 
     // this click event causes the react lifecycle method componentDidUpdate
@@ -134,11 +157,6 @@ class Projection extends Component<PropsForProjection, {}> {
         if (index == selected_datum) return 'cyan'
         if (this.props.selectedCluster == labels[index].label_kmedoids) return this.hoverColor // orange kinda
         return 'white'
-      })
-      .attr('fill-opacity', ([x, y, index]) => {
-        if (index == selected_datum) return 1
-        if (this.props.selectedCluster == labels[index].label_kmedoids) return 0.8
-        return this.fillOpacity
       })
   }
 
@@ -259,13 +277,11 @@ class Projection extends Component<PropsForProjection, {}> {
     }
     if (this.hasSelectedClusterChanged(prevProps)) {
       this.drawScatterPlot()
-      this.updateColorPoints()
       this.zoomAroundCluster()
       return
     }
-    if (this.haveCoordinatesChanged(prevProps) || this.haveClustersToShowChanged(prevProps)) {
+    if (this.haveClustersToShowChanged(prevProps) || this.haveCoordinatesChanged(prevProps)) {
       this.drawScatterPlot()
-      this.updateColorPoints()
       return
     }
     if (this.haveSearchResultsChanged(prevProps)) return this.highlightSearchResults()

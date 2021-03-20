@@ -139,7 +139,7 @@ export default class Data extends Component<any, State> {
         numNeighborsParameter: '10',
         minDistParameter: '0.1'
       },
-      coordinates_to_show: 4000,
+      coordinates_to_show: 500,
       data: null,
       labels: null,
       searchIndex: null,
@@ -252,25 +252,35 @@ export default class Data extends Component<any, State> {
     })
   }
 
-  /** samples this.state.clustersToShow many coords from specified coordinates of parameter
+
+  /** updates coordinates of current points to updated coordinate parameters.
+   * Call this function after changing the coordinate parameters
+   * 
    * @param callback is called after allCoordinates is set
+   * 
+   * @pre this.state.allCoordinates !== null
    */
   updateSelectedCoordinates(callback?: () => void) {
-    if (!this.state.allCoordinatesFull) {
-      console.log('allCoordinates is null')
-      return []
-    }
+    if (!this.state.allCoordinatesFull) throw Error("allCoordinates is null")
 
     const numNeighbors = this.state.coordinatesParameters.numNeighborsParameter
     const minDist = this.state.coordinatesParameters.minDistParameter
 
-    const rand_indices = this.getRandomIndices(this.state.labels!, this.state.coordinates_to_show)
-    const coordinates = rand_indices.map(i => this.state.allCoordinatesFull![numNeighbors][minDist]![i])
+    let coordinates
+    if (!this.state.allCoordinates) {
+      const randIndices = this.getRandomIndices(this.state.labels || [], this.state.coordinates_to_show)
+      coordinates = randIndices.map(i => this.state.allCoordinatesFull![numNeighbors][minDist]![i])
+    } else {
+      // take same points and update coordinates
+      // this allows for nice transitions as the points remain the same
+      coordinates = this.state.allCoordinates!.map(i => this.state.allCoordinatesFull![numNeighbors][minDist]![i.index])
+    }
 
     this.setState({
       allCoordinates: coordinates,
     }, callback)
   }
+
 
   setClustersToShow(clusters: string[], callback?: () => void) {
     this.setState({
@@ -397,12 +407,19 @@ export default class Data extends Component<any, State> {
 
 
   async reloadCoordinatesWithSize(newSize: number, callback?: () => void) {
-    const size = newSize > 3 / 5 * (this.state.data?.length || 0) ? (this.state.data?.length || 0) : newSize
+    // if above 80 %, just take all points
+    const size = newSize > 4 / 5 * (this.state.data?.length || 0) ? (this.state.data?.length || 0) : newSize
+
+    const numNeighbors = this.state.coordinatesParameters.numNeighborsParameter
+    const minDist = this.state.coordinatesParameters.minDistParameter
+
+    const randIndices = this.getRandomIndices(this.state.labels || [], size)
+    const coordinates = randIndices.map(i => this.state.allCoordinatesFull![numNeighbors][minDist]![i])
 
     this.setState({
-      coordsAreReloading: true,
       coordinates_to_show: size,
-    }, () => this.updateSelectedCoordinates(callback))
+      allCoordinates: coordinates
+    })
   }
 
 
