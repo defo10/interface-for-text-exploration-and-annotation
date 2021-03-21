@@ -16,7 +16,7 @@ export type PropsForSidebar = {
   sidebar_orientation: string,
   selected_datum: number | null,
   selectedCluster: string | null,
-  selectCluster: (newSelectedCluster: string | null) => void,
+  selectCluster: (newSelectedCluster: string) => void,
   setSelectedDatum: (newDatumIndex: number | null) => void,
 } & LayoutState & PropsFromData
 

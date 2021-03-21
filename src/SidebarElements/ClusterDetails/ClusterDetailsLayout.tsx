@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { DataPoint, Label } from '../../Data'
+import { ChangedClusterName, DataPoint, Label } from '../../Data'
 import { PropsForSidebar } from '../../Sidebar'
 import Separator from '../Separator'
 import ClusterMenu from './ClusterMenu'
@@ -39,6 +39,11 @@ export default function ClusterDetailsLayout(props: ClusterDetailsLayoutProps) {
     const setLabelLocal = (val: string) => {
         prevLabelLocal = val
         _setLabelLocal(val)
+
+        props.setChangedClusterName({
+            original: props.selectedCluster,
+            changed: val
+        } as ChangedClusterName)
     }
     // select only unchanged data of cluster, without selected point
     const dataOfCluster = data!.filter((d, i) => {

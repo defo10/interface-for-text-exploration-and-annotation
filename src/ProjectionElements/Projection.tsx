@@ -9,7 +9,7 @@ export type PropsForProjection = {
   height: number,
   sidebar_ctx: number,
   selectedCluster: string | null,
-  selectCluster: (newLabel: string | null) => void,
+  selectCluster: (newLabel: string) => void,
   setSelectedDatum: (newDatumIndex: number) => void,
   selected_datum: number | null,
   searchResultIndices: object & {

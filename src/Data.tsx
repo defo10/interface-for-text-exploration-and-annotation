@@ -66,6 +66,11 @@ export type Cluster = {
   [cluster: string]: ClusterInfo
 }
 
+export type ChangedClusterName = {
+  original: String,
+  changed: String
+}
+
 type State = {
   /** this has actually all coordinates, unlike allCoordinates,
    * which has a sample for all parameters */
@@ -90,6 +95,8 @@ type State = {
   clusters: Cluster,
   /** the coordinate of the comment the user hovers over, or null if not hovering */
   hoveredCommentCoordinate: Coordinate | null,
+  /** the copy of the original cluster name and the current local change */
+  changedClusterName: ChangedClusterName | null
 }
 
 export type PropsFromData = {
@@ -122,6 +129,12 @@ export type PropsFromData = {
    * comment_index, or null of comment_index is null
    */
   setHoveredCommentCoordinate: (comment_index: number | null) => void,
+  /** set changedClusterName, i.e. object which keeps track of the local
+   * changes of a cluster name.
+   * 
+   * Reset whenever a different cluster is selected.
+   */
+  setChangedClusterName: (changedClusterName: ChangedClusterName) => void,
   [key: string]: any,
 } & State
 
@@ -147,6 +160,7 @@ export default class Data extends Component<any, State> {
       clusters: {},
       dataChanged: [],
       hoveredCommentCoordinate: null,
+      changedClusterName: null,
     }
     this.reloadCoordinatesWithSize = this.reloadCoordinatesWithSize.bind(this)
     this.setSelectedCoordinates = this.setSelectedCoordinates.bind(this)
@@ -154,7 +168,16 @@ export default class Data extends Component<any, State> {
     this.renameLabels = this.renameLabels.bind(this)
     this.pushToDataChanged = this.pushToDataChanged.bind(this)
     this.setHoveredCommentCoordinate = this.setHoveredCommentCoordinate.bind(this)
+    this.setChangedClusterName = this.setChangedClusterName.bind(this)
   }
+
+
+  setChangedClusterName(changedClusterName: ChangedClusterName) {
+    this.setState({
+      changedClusterName: changedClusterName
+    })
+  }
+
 
   setHoveredCommentCoordinate(comment_index: number | null) {
     if (!comment_index) {
@@ -236,7 +259,11 @@ export default class Data extends Component<any, State> {
     }
 
     // rename in dataChanged
-    let dataChanged_new = this.state.dataChanged.map(el =>
+    let dataChanged_new = this.state.dataChanged.map(el => // change 'from' field
+      (oldLabels.includes(el.oldLabel.label_kmedoids))
+        ? { ...el, oldLabel: { label_kmedoids: newLabel } }
+        : el
+    ).map(el => // change 'to' field
       (oldLabels.includes(el.newLabel.label_kmedoids))
         ? { ...el, newLabel: { label_kmedoids: newLabel } }
         : el
@@ -554,6 +581,7 @@ export default class Data extends Component<any, State> {
       renameLabels: this.renameLabels,
       pushToDataChanged: this.pushToDataChanged,
       setHoveredCommentCoordinate: this.setHoveredCommentCoordinate,
+      setChangedClusterName: this.setChangedClusterName,
     }
     return this.state.allCoordinates && this.state.data && this.state.labels && this.state.clusters ? (
       <Layout {...props} />

@@ -53,9 +53,13 @@ class Layout extends Component<PropsFromData, LayoutState> {
     this.selectCluster = this.selectCluster.bind(this)
   }
 
-  selectCluster(newLabel: string | null) {
+  selectCluster(newLabel: string) {
     this.setState({
       selectedCluster: newLabel
+    })
+    this.props.setChangedClusterName({
+      original: newLabel,
+      changed: newLabel
     })
   }
 

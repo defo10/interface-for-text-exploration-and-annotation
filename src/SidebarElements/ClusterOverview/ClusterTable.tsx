@@ -309,7 +309,7 @@ export default function ClusterTable({
                                                 />
                                             </TableCell>
                                             <TableCell component="th" id={labelId} scope="row" padding="none">
-                                                {row.label}
+                                                {selectedCluster === row.label ? other.changedClusterName?.changed : row.label }
                                             </TableCell>
                                             <TableCell align="right">{`${row.size} (${row.sizePrct})`}</TableCell>
                                             <TableCell align="right">{row.metric}</TableCell>
