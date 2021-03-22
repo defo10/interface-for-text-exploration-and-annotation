@@ -4,8 +4,9 @@ import ClusterTable from './ClusterTable';
 import { PropsForSidebar } from '../../Sidebar';
 import ClusterMerger from '../ClusterMerger';
 import { DataPoint } from '../../Data';
-import { Accordion, AccordionDetails, AccordionSummary, makeStyles, Typography } from '@material-ui/core';
+import { Accordion, AccordionDetails, AccordionSummary, Card, makeStyles, Tooltip, Typography } from '@material-ui/core';
 import { ExpandMore } from '@material-ui/icons';
+import CardContent from '@material-ui/core/CardContent';
 
 
 export type PropsForClusterOverview = PropsForSidebar
@@ -13,6 +14,14 @@ export type PropsForClusterOverview = PropsForSidebar
 const useStyles = makeStyles(theme => ({
     padding: {
         padding: theme.spacing(2),
+    },
+    marginCard: {
+        marginLeft: theme.spacing(2),
+        marginRight: theme.spacing(2),
+        marginBottom: theme.spacing(3)
+    },
+    rightMargin: {
+        marginRight: theme.spacing(2)
     },
     root: { // accordion
         margin: theme.spacing(2)
@@ -26,6 +35,9 @@ const useStyles = makeStyles(theme => ({
         fontSize: theme.typography.pxToRem(15),
         color: theme.palette.text.secondary,
     },
+    tootltip: {
+        fontSize: '0.8em',
+    }
 }))
 
 /**
@@ -50,9 +62,41 @@ export default function ClusterOverview(props: PropsForClusterOverview) {
 
     const legend = (
         <div className={classes.padding}>
-            <Typography variant='body2' style={{ backgroundColor: 'rgba(255, 255, 255, 0.15)', padding: '8px'}}>Checked cluster comments are white in the visualization</Typography>
+            <Typography variant='body2' style={{ backgroundColor: 'rgba(255, 255, 255, 0.15)', padding: '8px' }}>Checked cluster comments are white in the visualization</Typography>
             <Typography variant='body2' style={{ backgroundColor: 'rgba(245, 124, 0, 0.7)', padding: '8px' }}>The selected cluster's comments are orange in the visualization</Typography>
         </div>)
+
+    const metaInfo = (
+        <Card
+            variant="outlined"
+            className={classes.marginCard}
+        >
+            <CardContent>
+                <Typography variant="body1" gutterBottom>
+                    {`Comments in total: ${props.labels?.length || "undefined"}`}
+                </Typography>
+                <Typography variant="body1">
+                    {`Number of clusters: ${Object.keys(props.clusters).length || "undefined"}`}
+                </Typography>
+            </CardContent>
+        </Card>
+    )
+
+    const whatAmISeeingTooltip = (
+        <Tooltip
+        title="This is a list of all clusters. Grey entries (checked checkbox) are currently visible in the visualization. The cluster seen in the details pane (right) is highlighted orange."
+        placement="bottom-end"
+        classes={{tooltip: classes.tootltip}}
+        >
+            <Typography
+                align="right"
+                variant="subtitle2"
+                className={classes.rightMargin}
+            >
+                What am I seeing here?
+            </Typography>
+        </Tooltip>
+    )
 
     return (
         <>
@@ -65,8 +109,8 @@ export default function ClusterOverview(props: PropsForClusterOverview) {
             }}>
                 <AccordionSummary
                     expandIcon={<ExpandMore />}
-                    aria-controls="panel1bh-content"
-                    id="panel1bh-header"
+                    aria-controls="cluster merger"
+                    id="cluster merger"
                 >
                     <Typography className={classes.heading}>Merge Clusters</Typography>
                     <Typography className={classes.secondaryHeading}>{mergeExplainer}</Typography>
@@ -75,8 +119,9 @@ export default function ClusterOverview(props: PropsForClusterOverview) {
                     <ClusterMerger {...props} />
                 </AccordionDetails>
             </Accordion>
-            {buildHeadlineAndInfo('Clusters Overview', "Browse through all clusters. Check the one's you'd like to see in the visualization. Click on a row to see its details.")}
-            {legend}
+            {buildHeadlineAndInfo('Clusters Overview', "Browse all clusters.")}
+            {metaInfo}
+            {whatAmISeeingTooltip}
             <ClusterTable {...props} />
         </>
     )

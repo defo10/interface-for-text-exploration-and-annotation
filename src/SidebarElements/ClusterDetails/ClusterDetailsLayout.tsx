@@ -6,10 +6,14 @@ import ClusterMenu from './ClusterMenu'
 import MetaInfo from './MetaInfo'
 import Comment from './Comment'
 import NeoMorphCard from './NeoMorphCard'
-import { Box, Card, CardContent, makeStyles, Typography } from '@material-ui/core'
+import { Box, Card, CardContent, ListItem, ListItemSecondaryAction, makeStyles, Typography } from '@material-ui/core'
 import ClusterChangeCommentDialog from './ClusterChangeCommentDialog'
 import _ from 'lodash'
 import { index } from 'd3'
+import List from '@material-ui/core/List'
+import ListItemText from '@material-ui/core/ListItemText'
+import Divider from '@material-ui/core/Divider'
+import ListItemComment from './ListItemComment'
 
 
 const useStyles = makeStyles(theme => ({
@@ -23,7 +27,10 @@ const useStyles = makeStyles(theme => ({
         overflow: 'scroll',
         transition: 'all 0.3s',
         backgroundColor: '#222'
-    }
+    },
+    root: {
+        width: '100%',
+    },
 }))
 
 type ClusterDetailsLayoutProps = PropsForSidebar
@@ -48,10 +55,10 @@ export default function ClusterDetailsLayout(props: ClusterDetailsLayoutProps) {
     // select only unchanged data of cluster, without selected point
     const dataOfCluster = data!.filter((d, i) => {
         if (labels === null) return false
-        const hasChangedAlready = _.find(dataChanged, ['i', d.i]) // undefined if not found
+        const hasMovedAlready = _.find(dataChanged, ['i', d.i]) // undefined if not found
         const isSelectedDatum = (i === selected_datum)
         const sameCluster = (labels[i].label_kmedoids == selectedCluster)
-        return !hasChangedAlready && sameCluster && !isSelectedDatum
+        return !hasMovedAlready && sameCluster && !isSelectedDatum
     })
 
     // select all data that was added to this cluster
@@ -133,7 +140,11 @@ export default function ClusterDetailsLayout(props: ClusterDetailsLayoutProps) {
                     )
                 )}
                 {buildHeadlineAndInfo('Other Comments', 'A sample of other comments of this cluster.')}
-                {buildComments(dataOfCluster, 'normal')}
+                <List className={classes.root}>
+                    {dataOfCluster.slice(0, 20).map((d: DataPoint) => 
+                        (<ListItemComment d={d} i={d.i} onMoveCluster={onMoveCluster} key={`list comment ${d.i}`} {...props}/>)
+                    )}
+                </List>
             </>)
             : <div className={classes.coverSidebar} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <Typography style={{ padding: 16 }}>Click on a point or on a cluster in the left panel to see its details here!</Typography>
