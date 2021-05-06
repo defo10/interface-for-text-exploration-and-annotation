@@ -1,8 +1,11 @@
 import Slider from '@material-ui/core/Slider';
 import { makeStyles } from '@material-ui/core/styles';
+import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
 import { ParameterMinDist, ParameterNumNeighbors, PropsFromData } from '../Data';
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
+
 
 const useStyles = makeStyles((theme) => ({
     margin: {
@@ -11,6 +14,9 @@ const useStyles = makeStyles((theme) => ({
     slider: {
         color: theme.palette.text.primary,
         minWidth: '14em'
+    },
+    tooltip: {
+        fontSize: '0.8em'
     }
 }));
 
@@ -61,10 +67,19 @@ export default function SlidersParamter(props: PropsFromData) {
     return (
         <>
             {/* num neighbors*/}
-            <div style={{ flex: '2 auto', padding: '0 16px' }}>
-                <Typography variant="subtitle2" gutterBottom>
-                    Number of neighbors
+            <div style={{ flex: '2 auto', padding: '0 16px', display: 'inline' }}>
+                <div>
+                    <Typography variant="subtitle2" gutterBottom style={{display:'inline'}}>
+                        Number of neighbors
                 </Typography>
+                    <Tooltip
+                        title={"The size of local neighborhood (in terms of number of neighboring sample points) used for manifold approximation. Larger values result in more global views of the manifold, while smaller values result in more local data being preserved."}
+                        placement="top"
+                        classes={{ tooltip: classes.tooltip }}
+                    >
+                        <InfoOutlinedIcon style={{ marginLeft: '8px', fontSize: '1em' }} />
+                    </Tooltip>
+                </div>
                 <Slider
                     getAriaValueText={(val) => `${val}`}
                     aria-labelledby="number of neighbors for underyling umap algorithm"
@@ -81,10 +96,19 @@ export default function SlidersParamter(props: PropsFromData) {
                 />
             </div>
             {/* min dist*/}
-            <div style={{ flex: '2 auto',  padding: '0 16px' }}>
-                <Typography variant="subtitle2" gutterBottom>
-                    Minimum distance between points
+            <div style={{ flex: '2 auto', padding: '0 16px' }}>
+                <div>
+                    <Typography variant="subtitle2" gutterBottom style={{display:'inline'}}>
+                        Minimum distance between points
                 </Typography>
+                    <Tooltip
+                        title={"The effective minimum distance between embedded points. Smaller values will result in a more clustered/clumped embedding where nearby points on the manifold are drawn closer together, while larger values will result on a more even dispersal of points."}
+                        placement="top"
+                        classes={{ tooltip: classes.tooltip }}
+                    >
+                        <InfoOutlinedIcon style={{ marginLeft: '8px', fontSize: '1em' }} />
+                    </Tooltip>
+                </div>
                 <Slider
                     getAriaValueText={(val) => `${val}`}
                     aria-labelledby="number of mininum distances for underyling umap algorithm"

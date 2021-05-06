@@ -131,9 +131,9 @@ export default function ClusterDetailsLayout(props: ClusterDetailsLayoutProps) {
                         <Comment onMoveCluster={onMoveCluster} i={selected_datum} {...props} />
                     </>
                 )}
-                {hasRepresentative && buildHeadlineAndInfo('Cluster Representative', 'The most centrally located point in the cluster.')}
+                {hasRepresentative && buildHeadlineAndInfo('Cluster Representative', 'The comment best representing all other comments of this cluster.')}
                 {hasRepresentative && <Comment onMoveCluster={onMoveCluster} isRepresentative i={props.clusters[props.selectedCluster!].medoid || 0} {...props} />}
-                {otherRepresentatives && buildHeadlineAndInfo('Overview Comments', 'Distinct comments of this cluster, giving an overview of all comments of this cluster.')}
+                {otherRepresentatives && buildHeadlineAndInfo('Overview Comments', 'Distinct comments of this cluster, representing different sub-topics of this cluster.')}
                 {otherRepresentatives && props.clusters[props.selectedCluster!].representatives.map(
                     reprs_index => (
                         <Comment key={`representative-${reprs_index}`} onMoveCluster={onMoveCluster} i={reprs_index} {...props} />

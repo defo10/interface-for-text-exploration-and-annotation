@@ -38,18 +38,20 @@ const useStyles = makeStyles<any, { backgroundColor: string }>((theme) => ({
     },
     styleUsername: {
         display: 'inline',
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        wordBreak: 'break-word'
     },
     styleComment: {
         marginBottom: '0',
-        marginTop: '8px'
+        marginTop: '8px',
+        wordBreak: 'break-word'
     },
     styleDate: {
         marginLeft: '8px',
         display: 'inline',
         color: 'LightGray',
         fontStyle: 'italic',
-        fontSize: '0.9em'
+        fontSize: '0.9em',
     },
     btnsContainer: {
         maxHeight: 0,
@@ -65,6 +67,9 @@ const useStyles = makeStyles<any, { backgroundColor: string }>((theme) => ({
         marginLeft: 'auto',
         marginRight: '0'
     },
+    tooltip: {
+        fontSize: '0.8em',
+    }
 }))
 
 // styles for card content --> make denser
@@ -106,7 +111,7 @@ export default function Comment({ dense = false, data, i, onMoveCluster, added =
             </CardContent>
             <CardActions>
                 {isRepresentative
-                    ? (<Tooltip title="As this comment represents the whole cluster, it may not be moved. Use the Merge Clusters Field to merge the whole cluster with another.">
+                    ? (<Tooltip classes={{tooltip: classes.tootltip}} title="As this comment represents the whole cluster, it may not be moved. Use the Merge Clusters Field to merge the whole cluster with another.">
                         <span><Button onClick={() => null} disabled>Move to other Cluster</Button></span>
                     </Tooltip>)
                     : <Button onClick={() => setShowClusterChangeDialog(true)}>Move to other Cluster</Button>

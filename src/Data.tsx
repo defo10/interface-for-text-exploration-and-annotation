@@ -156,7 +156,7 @@ export default class Data extends Component<any, State> {
       data: null,
       labels: null,
       searchIndex: null,
-      clustersToShow: ["cluster 12", "cluster 4", "cluster 1", "cluster 31", "cluster 15"],  // only select five biggest on mount
+      clustersToShow: Array.from(Array(40).keys()).map(n => `cluster ${n}`),
       clusters: {},
       dataChanged: [],
       hoveredCommentCoordinate: null,

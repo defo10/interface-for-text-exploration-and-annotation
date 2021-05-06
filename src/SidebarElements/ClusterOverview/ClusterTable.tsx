@@ -14,6 +14,8 @@ import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import { Cluster } from '../../Data';
 import { PropsForSidebar } from '../../Sidebar';
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
+import { Tooltip } from '@material-ui/core';
 
 type Row = {
     label: string,
@@ -60,17 +62,23 @@ function stableSort(array: Row[], comparator: (a: Row, b: Row) => number) {
     return stabilizedThis.map((el) => el[0] as Row);
 }
 
+const useTooltipStyles = makeStyles(theme => ({
+    tootltip: {
+        fontSize: '0.8em',
+    }
+}))
 
 function EnhancedTableHead(props: any) {
     const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
     const createSortHandler = (property: string) => (event: any) => {
         onRequestSort(event, property);
     };
+    const classesTooltip = useTooltipStyles()
 
     const headCells = [
         { id: 'label', numeric: false, disablePadding: true, label: 'Cluster Name' },
-        { id: 'size', numeric: true, disablePadding: false, label: 'Size (in\u00A0%)' },
-        { id: 'metric', numeric: true, disablePadding: false, label: 'Density' },
+        { id: 'size', numeric: true, disablePadding: false, label: 'Size (in\u00A0%)'},
+        { id: 'metric', numeric: true, disablePadding: false, label: 'Density', sublabel: 'Density describes how close comments of the same cluster lie together, with 0 being the densest cluster and 1 being the farthest spread out cluster.' },
     ];
 
     return (
@@ -96,6 +104,13 @@ function EnhancedTableHead(props: any) {
                             direction={orderBy === headCell.id ? order : 'asc'}
                             onClick={createSortHandler(headCell.id)}
                         >
+                            {headCell.sublabel && <Tooltip
+                                title={headCell.sublabel}
+                                placement="bottom-end"
+                                classes={{tooltip: classesTooltip.tootltip}}
+                            >
+                                <InfoOutlinedIcon style={{marginLeft: '8px', fontSize: '1em'}}/>
+                            </Tooltip>}
                             <Typography style={{ fontWeight: 600 }}>{headCell.label}</Typography>
                             {orderBy === headCell.id ? (
                                 <span className={classes.visuallyHidden}>
@@ -298,7 +313,7 @@ export default function ClusterTable({
                                             tabIndex={-1}
                                             key={row.label}
                                             selected={isItemSelected}
-                                            style={selectedCluster === row.label ? {backgroundColor: 'rgba(245, 124, 0, 0.7)'} : {}}
+                                            style={selectedCluster === row.label ? { backgroundColor: 'rgba(245, 124, 0, 0.7)' } : {}}
                                         >
                                             <TableCell padding="checkbox">
                                                 <Checkbox
@@ -309,7 +324,7 @@ export default function ClusterTable({
                                                 />
                                             </TableCell>
                                             <TableCell component="th" id={labelId} scope="row" padding="none">
-                                                {selectedCluster === row.label ? other.changedClusterName?.changed : row.label }
+                                                {selectedCluster === row.label ? other.changedClusterName?.changed : row.label}
                                             </TableCell>
                                             <TableCell align="right">{`${row.size} (${row.sizePrct})`}</TableCell>
                                             <TableCell align="right">{row.metric}</TableCell>

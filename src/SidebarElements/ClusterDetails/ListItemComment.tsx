@@ -27,7 +27,7 @@ const useStyles = makeStyles(theme => ({
     // action is used
     secondaryAction: {
         paddingRight: '80px'
-    }
+    },
 }))
 
 export default function ListItemComment(props: CommentProps) {
@@ -55,6 +55,7 @@ export default function ListItemComment(props: CommentProps) {
                                 component="span"
                                 variant="body2"
                                 className={classes.inline}
+                                style={{wordBreak: 'break-word'}}
                             >
                                 {`${props.d.publishedAt} - `}
                             </Typography>
@@ -62,6 +63,7 @@ export default function ListItemComment(props: CommentProps) {
                                 component="span"
                                 variant="body2"
                                 color="textPrimary"
+                                style={{wordBreak: 'break-word'}}
                             >
                                 {props.d.cleaned}
                             </Typography>
