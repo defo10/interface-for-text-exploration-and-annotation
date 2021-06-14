@@ -1,0 +1,46 @@
+% ---------------------------------------------------
+% ----- Chapters of the template
+% ----- for Bachelor-, Master thesis and class papers
+% ---------------------------------------------------
+%  Created by C. Müller-Birn on 2012-08-17, CC-BY-SA 3.0.
+%  Freie Universität Berlin, Institute of Computer Science, Human Centered Computing. 
+%
+\chapter{Kapitel}
+\label{chap:chapters} 
+
+\begin{itemize}
+	\item Abhängig vom Ziel der Arbeit und dem verwendeten Forschungsdesign unterscheidet sich dieser Hauptteil der Arbeit erheblich. 
+	\item Eine sehr allgemeine Struktur ist die folgende:
+	\begin{itemize}
+		\item Hintergrund der Arbeit (Theoretische Einordnung der Arbeit) 
+		 	\begin{itemize}
+		 		\item Hier sollte enthalten sein, welche Anwendungen in diesem Bereich bereits existieren und warum bei diesen ein Defizit besteht. 
+				\item Falls genutzt, sollten hier die entsprechenden Algorithmen erläutert werden.
+				\item Es sollten die Ziele der Anwendungsentwicklung, d.h. die Anforderungen herausgearbeitet werden. Dabei sollte die bestehende Literatur geeignet integriert werden.
+		 	\end{itemize}
+		\item Umsetzung (Praktischer Anteil der Arbeit)
+			\begin{itemize}
+				\item Zunächst sollte die Softwarearchitektur und die genutzten Anwendungen, APIs etc. erläutert werden. Ebenfalls gehört dazu das Datenbankschema.
+				\item Es sollten die zentralen Elemente der Software (abhängig von der Aufgabenstellung) beschrieben werden, wie implementierte Algorithmen oder das Oberflächendesign.
+				\item Zentraler Quellcode sollte entsprechend aufgelistet werden:
+				\lstset{language=Java,basicstyle=\footnotesize,numbers=left,showstringspaces=false,frame=single}
+				\begin{lstlisting}
+				public class Main {
+					public static void main(String[] args) {
+						System.out.println("Hello World!");
+					}
+				}
+				\end{lstlisting} 
+				%\item Klassendiagramm für Backend
+				%\item Dr Quellcode zentraler Implementierungen  können als Auszug in den Anhang. Im Text kann dann darauf verwiesen werden.
+			\end{itemize}
+		\item Evaluation (zumeist nur für Masterarbeiten relevant)
+		\begin{itemize}
+			\item Jede Software muss auch getestet werden. Dieses Tests werden entweder mit einem vorgegebenen Datensatz erfolgen oder aber die Evaluation erfolgt auf Basis von Experimenten. In diesem Kapitel sollte daher entweder der genutzte Datensatz oder der experimentelle Aufbau beschrieben werden. 
+		\end{itemize}
+		\item Ergebnis und Diskussion
+		\begin{itemize}
+			\item Die Ergebnisse der Anwendung werden in diesem Kapitel vorgestellt und anschließend diskutiert. Wenn möglich sollte die Ergebnisse in Relation zu bestehenden Arbeiten in dem Bereich erörtert werden.
+		\end{itemize}
+	\end{itemize}  
+\end{itemize}
