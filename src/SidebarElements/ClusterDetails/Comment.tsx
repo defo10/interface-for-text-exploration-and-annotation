@@ -6,7 +6,6 @@ import { DataPoint } from '../../Data'
 import { PropsForSidebar } from '../../Sidebar'
 import ClusterChangeCommentDialog from './ClusterChangeCommentDialog'
 
-
 /**
  * used inside sidebar to display one comment
  * elem is one data point
@@ -23,83 +22,83 @@ export type CommentProps = {
 } & PropsForSidebar
 
 const useStyles = makeStyles<any, { backgroundColor: string }>((theme) => ({
-    styleContainer: props => ({
-        display: 'block',
-        marginLeft: 0,
-        marginRight: 0,
-        marginBottom: theme.spacing(1),
-        backgroundColor: props.backgroundColor,
-        borderRadius: 0,
-    }),
-    styleMetaInfos: {
-        display: 'block',
-        width: '100%',
-        height: 'auto',
-    },
-    styleUsername: {
-        display: 'inline',
-        fontWeight: 'bold',
-        wordBreak: 'break-word'
-    },
-    styleComment: {
-        marginBottom: '0',
-        marginTop: '8px',
-        wordBreak: 'break-word'
-    },
-    styleDate: {
-        marginLeft: '8px',
-        display: 'inline',
-        color: 'LightGray',
-        fontStyle: 'italic',
-        fontSize: '0.9em',
-    },
-    btnsContainer: {
-        maxHeight: 0,
-        overflow: 'hidden',
-        transitionDelay: '0.2s',
-        transition: 'max-height 0.3s',
-        paddingRight: theme.spacing(3),
-        paddingLeft: theme.spacing(3),
-        width: '100%',
-    },
-    rightAlign: {
-        display: 'block',
-        marginLeft: 'auto',
-        marginRight: '0'
-    },
-    tooltip: {
-        fontSize: '0.8em',
-    }
+  styleContainer: props => ({
+    display: 'block',
+    marginLeft: 0,
+    marginRight: 0,
+    marginBottom: theme.spacing(1),
+    backgroundColor: props.backgroundColor,
+    borderRadius: 0
+  }),
+  styleMetaInfos: {
+    display: 'block',
+    width: '100%',
+    height: 'auto'
+  },
+  styleUsername: {
+    display: 'inline',
+    fontWeight: 'bold',
+    wordBreak: 'break-word'
+  },
+  styleComment: {
+    marginBottom: '0',
+    marginTop: '8px',
+    wordBreak: 'break-word'
+  },
+  styleDate: {
+    marginLeft: '8px',
+    display: 'inline',
+    color: 'LightGray',
+    fontStyle: 'italic',
+    fontSize: '0.9em'
+  },
+  btnsContainer: {
+    maxHeight: 0,
+    overflow: 'hidden',
+    transitionDelay: '0.2s',
+    transition: 'max-height 0.3s',
+    paddingRight: theme.spacing(3),
+    paddingLeft: theme.spacing(3),
+    width: '100%'
+  },
+  rightAlign: {
+    display: 'block',
+    marginLeft: 'auto',
+    marginRight: '0'
+  },
+  tooltip: {
+    fontSize: '0.8em'
+  }
 }))
 
 // styles for card content --> make denser
 const useCardContentStyles = makeStyles(theme => ({
-    root: {
-        paddingTop: 8,
-        paddingBottom: 0,
-        paddingLeft: 16,
-        paddingRight: 16,
-    }
+  root: {
+    paddingTop: 8,
+    paddingBottom: 0,
+    paddingLeft: 16,
+    paddingRight: 16
+  }
 }))
 
-export default function Comment({ dense = false, data, i, onMoveCluster, added = false, removed = false, isRepresentative = false, ...other }: CommentProps) {
-    const backgroundColor: string = added ? '#1d3d17' : removed ? '#3d171b' : "auto"
-    const classes = useStyles({ backgroundColor: backgroundColor })
-    const cardContentStyles = useCardContentStyles()
-    const { publishedAt, authorName, cleaned } = data![i]
-    const [showClusterChangeDialog, setShowClusterChangeDialog] = useState(false)
+export default function Comment ({ dense = false, data, i, onMoveCluster, added = false, removed = false, isRepresentative = false, ...other }: CommentProps) {
+  const backgroundColor: string = added ? '#1d3d17' : removed ? '#3d171b' : 'auto'
+  const classes = useStyles({ backgroundColor: backgroundColor })
+  const cardContentStyles = useCardContentStyles()
+  const { publishedAt, authorName, cleaned } = data![i]
+  const [showClusterChangeDialog, setShowClusterChangeDialog] = useState(false)
 
-    const showPoint = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        other.setHoveredCommentCoordinate(i)
-    }
+  const showPoint = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    other.setHoveredCommentCoordinate(i)
+  }
 
-    const hidePoint = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        other.setHoveredCommentCoordinate(null)
-    }
+  const hidePoint = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    other.setHoveredCommentCoordinate(null)
+  }
 
-    const dataPoint = _.find(other.dataChanged, ['i', i])
+  const dataPoint = _.find(other.dataChanged, ['i', i])
 
-    return (
+  return (
         <Card onMouseEnter={showPoint} onMouseLeave={hidePoint} className={classes.styleContainer}>
             <CardContent classes={cardContentStyles}>
                 {dataPoint && <p style={{ marginLeft: 0 }} className={classes.styleDate}>{`from cluster ${dataPoint?.oldLabel.label_kmedoids} to ${dataPoint?.newLabel.label_kmedoids}`}</p>}
@@ -111,22 +110,22 @@ export default function Comment({ dense = false, data, i, onMoveCluster, added =
             </CardContent>
             <CardActions>
                 {isRepresentative
-                    ? (<Tooltip classes={{tooltip: classes.tootltip}} title="As this comment represents the whole cluster, it may not be moved. Use the Merge Clusters Field to merge the whole cluster with another.">
+                  ? (<Tooltip classes={{ tooltip: classes.tootltip }} title="As this comment represents the whole cluster, it may not be moved. Use the Merge Clusters Field to merge the whole cluster with another.">
                         <span><Button onClick={() => null} disabled>Move to other Cluster</Button></span>
                     </Tooltip>)
-                    : <Button onClick={() => setShowClusterChangeDialog(true)}>Move to other Cluster</Button>
+                  : <Button onClick={() => setShowClusterChangeDialog(true)}>Move to other Cluster</Button>
                 }
             </CardActions>
             <ClusterChangeCommentDialog
                 open={showClusterChangeDialog}
                 onMoveCluster={(clusterSelected) => {
-                    setShowClusterChangeDialog(false)
-                    onMoveCluster(clusterSelected, i)
+                  setShowClusterChangeDialog(false)
+                  onMoveCluster(clusterSelected, i)
                 }}
                 i={i}
                 data={data}
                 {...other}
             />
         </Card>
-    )
+  )
 }

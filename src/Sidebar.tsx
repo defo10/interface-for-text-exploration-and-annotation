@@ -8,8 +8,8 @@ const buildStyles = createUseStyles({
   sidebarContainerLeft: {
     width: '100%',
     height: '100vh',
-    overflow: 'scroll',
-  },
+    overflow: 'scroll'
+  }
 })
 
 export type PropsForSidebar = {
@@ -20,12 +20,12 @@ export type PropsForSidebar = {
   setSelectedDatum: (newDatumIndex: number | null) => void,
 } & LayoutState & PropsFromData
 
-export default function Sidebar(props: PropsForSidebar) {
+export default function Sidebar (props: PropsForSidebar) {
   const classes = buildStyles()
 
   return (
     <div className={classes.sidebarContainerLeft}>
-      <div style={{overflow: 'scroll'}}>
+      <div style={{ overflow: 'scroll' }}>
         <ClusterOverview {...props} />
       </div>
     </div>

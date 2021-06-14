@@ -1,27 +1,27 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit'
 
 export const slice = createSlice({
-    name: 'data',
-    initialState: {
-        embeddings: null,
-        data: null,
-        labels: null,
+  name: 'data',
+  initialState: {
+    embeddings: null,
+    data: null,
+    labels: null
+  },
+  reducers: {
+    renameLabel: (state, action) => {
+      state.labels?.forEach(
+        (label) => (label === action.payload.oldLabel)
+          ? label
+          : action.payload.newLabel
+      )
     },
-    reducers: {
-        renameLabel: (state, action) => {
-            state.labels?.forEach(
-                (label) => (label === action.payload.oldLabel)
-                    ? label
-                    : action.payload.newLabel
-            )
-        },
-        setLabelOfId: (state, action) => {
-            state.labels[action.payload.id] = action.payload.label
-        },
-        setState: (state, action) => {
-            state = action.payload.state
-        }
+    setLabelOfId: (state, action) => {
+      state.labels[action.payload.id] = action.payload.label
+    },
+    setState: (state, action) => {
+      state = action.payload.state
     }
+  }
 }
 )
 

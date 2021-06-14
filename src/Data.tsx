@@ -5,7 +5,6 @@ import lunr from 'lunr'
 import React, { Component } from 'react'
 import Layout from './Layout'
 
-
 export type Coordinate = {
   x: number,
   y: number,
@@ -52,11 +51,11 @@ export type Label = {
 }
 
 export type ClusterInfo = {
-  /**is the index of the medoid of that data point.
+  /** is the index of the medoid of that data point.
    * medoid might be null for newly created clusters.
   */
   medoid: number | null,
-  /**are the indices of representatives of this cluster */
+  /** are the indices of representatives of this cluster */
   representatives: number[],
   size: number,
   quality: number
@@ -104,7 +103,7 @@ export type PropsFromData = {
   reloadCoordinatesWithSize: (newSize: number, callback?: () => void) => void,
   setSelectedCoordinates: (numNeighbors: ParameterNumNeighbors, minDist: ParameterMinDist) => void,
   /**
-   * 
+   *
    * @param clusters is an array of labels of the clusters to show
    */
   setClustersToShow: (clusters: string[], callback?: () => void) => void,
@@ -114,10 +113,10 @@ export type PropsFromData = {
    * Make sure to handle all lower lying variables, e.g. selectedCluster,
    * yourself.
    * @param oldLabels
-   * @param newLabel 
+   * @param newLabel
    */
   renameLabels: (oldLabels: string[], newLabel: string) => void,
-  /** 
+  /**
    * adds new entry to dataChanged
    * if entry with same i property already exists, then first remove that.
    * if oldlabel is the same as newlabel, then remove and don't add
@@ -131,18 +130,17 @@ export type PropsFromData = {
   setHoveredCommentCoordinate: (comment_index: number | null) => void,
   /** set changedClusterName, i.e. object which keeps track of the local
    * changes of a cluster name.
-   * 
+   *
    * Reset whenever a different cluster is selected.
    */
   setChangedClusterName: (changedClusterName: ChangedClusterName) => void,
   [key: string]: any,
 } & State
 
-
 export default class Data extends Component<any, State> {
   random_indices: number[] | null = null
 
-  constructor(props: any) {
+  constructor (props: any) {
     super(props)
     this.state = {
       allCoordinatesFull: null,
@@ -160,7 +158,7 @@ export default class Data extends Component<any, State> {
       clusters: {},
       dataChanged: [],
       hoveredCommentCoordinate: null,
-      changedClusterName: null,
+      changedClusterName: null
     }
     this.reloadCoordinatesWithSize = this.reloadCoordinatesWithSize.bind(this)
     this.setSelectedCoordinates = this.setSelectedCoordinates.bind(this)
@@ -171,15 +169,13 @@ export default class Data extends Component<any, State> {
     this.setChangedClusterName = this.setChangedClusterName.bind(this)
   }
 
-
-  setChangedClusterName(changedClusterName: ChangedClusterName) {
+  setChangedClusterName (changedClusterName: ChangedClusterName) {
     this.setState({
       changedClusterName: changedClusterName
     })
   }
 
-
-  setHoveredCommentCoordinate(comment_index: number | null) {
+  setHoveredCommentCoordinate (comment_index: number | null) {
     if (!comment_index) {
       this.setState({
         hoveredCommentCoordinate: null
@@ -193,22 +189,22 @@ export default class Data extends Component<any, State> {
     })
   }
 
-  pushToDataChanged(newData: DataChanged) {
-    let alreadyExisting = _.find(this.state.dataChanged, ['i', newData.i])
-    let newDataChanged = _.without(this.state.dataChanged, alreadyExisting)
+  pushToDataChanged (newData: DataChanged) {
+    const alreadyExisting = _.find(this.state.dataChanged, ['i', newData.i])
+    const newDataChanged = _.without(this.state.dataChanged, alreadyExisting)
     if (!(
-      alreadyExisting && alreadyExisting.oldLabel.label_kmedoids == newData.newLabel.label_kmedoids // if users reverts change, skip
-      || !alreadyExisting && newData.oldLabel.label_kmedoids == newData.newLabel.label_kmedoids // if wasnt changed before but has no change either, skip
+      alreadyExisting && alreadyExisting.oldLabel.label_kmedoids == newData.newLabel.label_kmedoids || // if users reverts change, skip
+      !alreadyExisting && newData.oldLabel.label_kmedoids == newData.newLabel.label_kmedoids // if wasnt changed before but has no change either, skip
     )) newDataChanged.push(newData)
 
     // if new cluster, set clusters
     if (!this.state.clusters[newData.newLabel.label_kmedoids]) {
-      let copy = { ...this.state.clusters }
+      const copy = { ...this.state.clusters }
       copy[newData.newLabel.label_kmedoids] = {
         medoid: null,
         representatives: [],
         size: 1,
-        quality: -1,
+        quality: -1
       }
       this.setState({
         clusters: copy
@@ -220,7 +216,7 @@ export default class Data extends Component<any, State> {
     })
   }
 
-  renameLabels(oldLabels: string[], newLabel: string) {
+  renameLabels (oldLabels: string[], newLabel: string) {
     // rename in clusterToShow
     const newClustersToShow = this.state.clustersToShow.map(
       (el, i) => oldLabels.includes(el) ? newLabel : el
@@ -237,10 +233,9 @@ export default class Data extends Component<any, State> {
     )
 
     // rename in clusters
-    let clusters_new: Cluster = _.cloneDeep(this.state.clusters)
+    const clusters_new: Cluster = _.cloneDeep(this.state.clusters)
     let didMerge = false
     for (const oldLabel of oldLabels) {
-
       if (oldLabel == newLabel) continue // skip merging if both already have same label
 
       const isMerging = clusters_new[newLabel]
@@ -259,7 +254,7 @@ export default class Data extends Component<any, State> {
     }
 
     // rename in dataChanged
-    let dataChanged_new = this.state.dataChanged.map(el => // change 'from' field
+    const dataChanged_new = this.state.dataChanged.map(el => // change 'from' field
       (oldLabels.includes(el.oldLabel.label_kmedoids))
         ? { ...el, oldLabel: { label_kmedoids: newLabel } }
         : el
@@ -279,16 +274,15 @@ export default class Data extends Component<any, State> {
     })
   }
 
-
   /** updates coordinates of current points to updated coordinate parameters.
    * Call this function after changing the coordinate parameters
-   * 
+   *
    * @param callback is called after allCoordinates is set
-   * 
+   *
    * @pre this.state.allCoordinates !== null
    */
-  updateSelectedCoordinates(callback?: () => void) {
-    if (!this.state.allCoordinatesFull) throw Error("allCoordinates is null")
+  updateSelectedCoordinates (callback?: () => void) {
+    if (!this.state.allCoordinatesFull) throw Error('allCoordinates is null')
 
     const numNeighbors = this.state.coordinatesParameters.numNeighborsParameter
     const minDist = this.state.coordinatesParameters.minDistParameter
@@ -304,12 +298,11 @@ export default class Data extends Component<any, State> {
     }
 
     this.setState({
-      allCoordinates: coordinates,
+      allCoordinates: coordinates
     }, callback)
   }
 
-
-  setClustersToShow(clusters: string[], callback?: () => void) {
+  setClustersToShow (clusters: string[], callback?: () => void) {
     this.setState({
       clustersToShow: clusters
     })
@@ -318,7 +311,7 @@ export default class Data extends Component<any, State> {
   /** unlike getSelectedCoordinates, this returns all coordinates,
    * not only a sample
    */
-  _getAllSelectedCoordinates() {
+  _getAllSelectedCoordinates () {
     if (!this.state.allCoordinatesFull) {
       console.log('allCoordinatesFull is null')
       return []
@@ -328,7 +321,7 @@ export default class Data extends Component<any, State> {
     return this.state.allCoordinatesFull[numNeighbors][minDist] || []
   }
 
-  setSelectedCoordinates(numNeighbors: ParameterNumNeighbors, minDist: ParameterMinDist) {
+  setSelectedCoordinates (numNeighbors: ParameterNumNeighbors, minDist: ParameterMinDist) {
     this.setState({
       coordinatesParameters: {
         numNeighborsParameter: numNeighbors,
@@ -343,19 +336,19 @@ export default class Data extends Component<any, State> {
    * @param embeddings are the coordinates, has form [{x->val,y->val, index->val},...]
    * @returns an array of the coordinates of the form [[x, y, index], ...]
    */
-  scaleEmbeddings(embeddings: Coordinate[]) {
-    let xs = embeddings.map(e => Math.abs(e.x))
-    let ys = embeddings.map(e => Math.abs(e.y))
-    let max_x = _.max(xs) || 0
-    let max_y = _.max(ys) || 0
-    let max = Math.max(max_x, max_y)
-    let scale = d3
+  scaleEmbeddings (embeddings: Coordinate[]) {
+    const xs = embeddings.map(e => Math.abs(e.x))
+    const ys = embeddings.map(e => Math.abs(e.y))
+    const max_x = _.max(xs) || 0
+    const max_y = _.max(ys) || 0
+    const max = Math.max(max_x, max_y)
+    const scale = d3
       .scaleLinear()
       .domain([-max, max])
       .range([0, 100])
-    let scaled_embeddings = embeddings.map(e => {
+    const scaled_embeddings = embeddings.map(e => {
       const coordinate_scaled: Coordinate = {
-        'x': scale(e.x), 'y': scale(e.y), 'index': e.index
+        x: scale(e.x), y: scale(e.y), index: e.index
       }
       return coordinate_scaled
     }
@@ -365,46 +358,45 @@ export default class Data extends Component<any, State> {
 
   /**
    * picks n random elements from arr without duplicates.
-   * 
+   *
    * if n is longer than 4/5th of arr's length, random indices of the lenght of the whole
    * list @param arr is  returned as a random picks would take too many tries to find new indices.
-   * 
+   *
    * modified from
    * https://stackoverflow.com/questions/19269545/how-to-get-a-number-of-random-elements-from-an-array
-   * 
+   *
    * @param {*} arr the original giving the shape
    * @param {*} n how many to pick from
    */
-  getRandomIndices(arr: any[], n: number) {
+  getRandomIndices (arr: any[], n: number) {
     const indices_arr = Array.from(Array(arr.length).keys()) // why so difficult, js?
 
     if (n > indices_arr.length * 3 / 5) {
       return indices_arr
     }
 
-    var result = new Array(n),
-      len = indices_arr.length,
-      taken = new Array(len);
-    if (n > len)
-      throw new RangeError("getRandom: more elements taken than available");
+    const result = new Array(n)
+    let len = indices_arr.length
+    const taken = new Array(len)
+    if (n > len) { throw new RangeError('getRandom: more elements taken than available') }
     while (n--) {
-      var x = Math.floor(Math.random() * len);
-      result[n] = indices_arr[x in taken ? taken[x] : x];
-      taken[x] = --len in taken ? taken[len] : len;
+      const x = Math.floor(Math.random() * len)
+      result[n] = indices_arr[x in taken ? taken[x] : x]
+      taken[x] = --len in taken ? taken[len] : len
     }
-    return result;
+    return result
   }
 
   /**
    * how many coordinates to pcik form all clusters to show coordinates
    * @param howMany how many to numbers to pick from all clusters to show
    */
-  async loadCoordinates(howMany: number) {
-    var all_coordinates_full: NumNeighbors = {
-      '2': { '0.1': null, '0.2': null, '0.5': null, '0.9': null } as MinDist,
-      '5': { '0.1': null, '0.2': null, '0.5': null, '0.9': null } as MinDist,
-      '10': { '0.1': null, '0.2': null, '0.5': null, '0.9': null } as MinDist,
-      '50': { '0.1': null, '0.2': null, '0.5': null, '0.9': null } as MinDist,
+  async loadCoordinates (howMany: number) {
+    const all_coordinates_full: NumNeighbors = {
+      2: { 0.1: null, 0.2: null, 0.5: null, 0.9: null } as MinDist,
+      5: { 0.1: null, 0.2: null, 0.5: null, 0.9: null } as MinDist,
+      10: { 0.1: null, 0.2: null, 0.5: null, 0.9: null } as MinDist,
+      50: { 0.1: null, 0.2: null, 0.5: null, 0.9: null } as MinDist
     }
 
     // creates a combination of all above, i.e. [['2', '0.1'], ['2', '0.2'], ...]
@@ -428,12 +420,11 @@ export default class Data extends Component<any, State> {
     await Promise.all(allPromisesParamPairs)
 
     return this.setState({
-      allCoordinatesFull: all_coordinates_full,
+      allCoordinatesFull: all_coordinates_full
     }, this.calc_quality) // calc_quality doesnt do anything on first run
   }
 
-
-  async reloadCoordinatesWithSize(newSize: number, callback?: () => void) {
+  async reloadCoordinatesWithSize (newSize: number, callback?: () => void) {
     // if above 80 %, just take all points
     const size = newSize > 4 / 5 * (this.state.data?.length || 0) ? (this.state.data?.length || 0) : newSize
 
@@ -449,10 +440,9 @@ export default class Data extends Component<any, State> {
     })
   }
 
-
-  async loadDataAndSearchIndex() {
+  async loadDataAndSearchIndex () {
     const fetched = await fetch(`${process.env.PUBLIC_URL}/data.json`)
-    let data: DataPoint[] = JSON.parse(await fetched.text())
+    const data: DataPoint[] = JSON.parse(await fetched.text())
     data.forEach((el, i) => {
       el.i = i
     })
@@ -463,10 +453,10 @@ export default class Data extends Component<any, State> {
 
       for (let i = 0; i < data.length; i++) {
         this.add({
-          'comment': data[i].cleaned,
-          'author': data[i].authorName,
-          'published': data[i].publishedAt,
-          'id': `${i}`,
+          comment: data[i].cleaned,
+          author: data[i].authorName,
+          published: data[i].publishedAt,
+          id: `${i}`
         })
       }
     })
@@ -476,7 +466,7 @@ export default class Data extends Component<any, State> {
     })
   }
 
-  async loadLabels() {
+  async loadLabels () {
     const fetched = await fetch(`${process.env.PUBLIC_URL}/labels.json`)
     let labels: Label[] = JSON.parse(await fetched.text())
     labels = labels.map(el => {
@@ -486,18 +476,18 @@ export default class Data extends Component<any, State> {
     })
 
     this.setState({
-      labels: labels,
+      labels: labels
     })
   }
 
   /** normalizes cluster quality so that values are in the range [0,1] */
-  _normalize_clusters(clusters: Cluster) {
+  _normalize_clusters (clusters: Cluster) {
     let maxQuality = 0
-    for (let label in clusters) {
+    for (const label in clusters) {
       maxQuality = clusters[label].quality > maxQuality ? clusters[label].quality : maxQuality
     }
-    let scale = d3.scaleLinear().domain([0, maxQuality]).range([0, 1])
-    for (let label in clusters) {
+    const scale = d3.scaleLinear().domain([0, maxQuality]).range([0, 1])
+    for (const label in clusters) {
       clusters[label].quality = scale(clusters[label].quality)
     }
   }
@@ -505,19 +495,19 @@ export default class Data extends Component<any, State> {
   /** sets the quality for each cluster.
    * currently named as density
    */
-  calc_quality() {
+  calc_quality () {
     // using average of squared euclidean distances
     const clusters = { ...this.state.clusters }
-    for (let label in clusters) {
+    for (const label in clusters) {
       if (!clusters[label].medoid) return // doesnt happen
       const coordinates = this._getAllSelectedCoordinates()
-      let medoid_pos = coordinates[clusters[label].medoid!]
+      const medoid_pos = coordinates[clusters[label].medoid!]
 
-      let distances = coordinates.map(
+      const distances = coordinates.map(
         (coord) => {
           if (this.state.labels?.[coord.index].label_kmedoids != label) return
           // is of same cluster:
-          let sqrd_eucl_dist = Math.sqrt(Math.pow(coord.x - medoid_pos.x, 2) + Math.pow(coord.y - medoid_pos.y, 2))
+          const sqrd_eucl_dist = Math.sqrt(Math.pow(coord.x - medoid_pos.x, 2) + Math.pow(coord.y - medoid_pos.y, 2))
           return sqrd_eucl_dist
         }
       )
@@ -533,16 +523,16 @@ export default class Data extends Component<any, State> {
   }
 
   /** loads cluster representatives from disk and creates clusters state */
-  async loadClusters() {
+  async loadClusters () {
     const fetchedReprs = await fetch(`${process.env.PUBLIC_URL}/cluster-representatives.json`)
     const representatives: { [label: string]: number[] } = JSON.parse(await fetchedReprs.text())
 
     const fetchedMedoids = await fetch(`${process.env.PUBLIC_URL}/medoids.json`)
     const medoids: { medoids_indices: number }[] = JSON.parse(await fetchedMedoids.text())
 
-    let clusters: Cluster = {}
+    const clusters: Cluster = {}
 
-    for (let orig_label in representatives) {
+    for (const orig_label in representatives) {
       const changed_label = `cluster ${orig_label}`
       clusters[changed_label] = {
         medoid: medoids[parseInt(orig_label)].medoids_indices,
@@ -552,7 +542,7 @@ export default class Data extends Component<any, State> {
       }
     }
 
-    for (let label of this.state.labels!) {
+    for (const label of this.state.labels!) {
       clusters[label.label_kmedoids].size += 1
     }
 
@@ -561,18 +551,17 @@ export default class Data extends Component<any, State> {
     }, () => this.calc_quality())
   }
 
-
-  async componentDidMount() {
+  async componentDidMount () {
     await Promise.all([
       this.loadCoordinates(this.state.coordinates_to_show), // embeddings
       this.loadDataAndSearchIndex(),
-      this.loadLabels(),
+      this.loadLabels()
     ])
     await this.setSelectedCoordinates(this.state.coordinatesParameters.numNeighborsParameter, this.state.coordinatesParameters.minDistParameter)
     await this.loadClusters()
   }
 
-  render() {
+  render () {
     const props: PropsFromData = {
       ...this.state,
       reloadCoordinatesWithSize: this.reloadCoordinatesWithSize,
@@ -581,12 +570,14 @@ export default class Data extends Component<any, State> {
       renameLabels: this.renameLabels,
       pushToDataChanged: this.pushToDataChanged,
       setHoveredCommentCoordinate: this.setHoveredCommentCoordinate,
-      setChangedClusterName: this.setChangedClusterName,
+      setChangedClusterName: this.setChangedClusterName
     }
-    return this.state.allCoordinates && this.state.data && this.state.labels && this.state.clusters ? (
+    return this.state.allCoordinates && this.state.data && this.state.labels && this.state.clusters
+      ? (
       <Layout {...props} />
-    ) : (
+        )
+      : (
         <div style={{ padding: '1rem' }}>Loading data...</div>
-      )
+        )
   }
 }

@@ -3,8 +3,8 @@ import Markdown from 'react-remarkable'
 import { about_text } from './Content'
 
 class About extends Component {
-  render() {
-    let { grem, p } = this.props
+  render () {
+    const { grem, p } = this.props
     return (
       <div
         style={{
@@ -18,7 +18,7 @@ class About extends Component {
           paddingTop: grem * 2,
           overflowY: 'auto',
           fontSize: 16,
-          lineHeight: 1.5,
+          lineHeight: 1.5
         }}
       >
         <div
@@ -28,7 +28,7 @@ class About extends Component {
             left: 0,
             top: 0,
             right: 0,
-            padding: grem / 2,
+            padding: grem / 2
           }}
         >
           About
@@ -46,7 +46,7 @@ class About extends Component {
               padding: grem / 2,
               textAlign: 'center',
               cursor: 'pointer',
-              textDecoration: 'none',
+              textDecoration: 'none'
             }}
           >
             &times;
@@ -57,7 +57,7 @@ class About extends Component {
             maxWidth: grem * 30,
             margin: '0 auto',
             padding: grem / 2,
-            color: '#fff',
+            color: '#fff'
           }}
         >
           <Markdown>{about_text}</Markdown>

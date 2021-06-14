@@ -9,7 +9,6 @@ import Sidebar2 from './Sidebar2'
 
 const minSizePanel = 350
 
-
 export type LayoutState = {
   ww: number | null,
   wh: number | null,
@@ -32,7 +31,7 @@ class Layout extends Component<PropsFromData, LayoutState> {
   sidebar_ctx: any | null
   sidebar_mount: HTMLDivElement | null = null
 
-  constructor(props: PropsFromData) {
+  constructor (props: PropsFromData) {
     super(props)
     this.state = {
       ww: null,
@@ -41,10 +40,10 @@ class Layout extends Component<PropsFromData, LayoutState> {
       sidebar_width: null,
       svg_width: null,
       selected_datum: null,
-      searchInput: "",
+      searchInput: '',
       searchResultIndices: {},
       selectedCluster: null,
-      svgKey: "1",
+      svgKey: '1'
     }
     this.sidebar_ctx = null
     this.setSize = _.debounce(this.setSize.bind(this), 200)
@@ -53,7 +52,7 @@ class Layout extends Component<PropsFromData, LayoutState> {
     this.selectCluster = this.selectCluster.bind(this)
   }
 
-  selectCluster(newLabel: string) {
+  selectCluster (newLabel: string) {
     this.setState({
       selectedCluster: newLabel
     })
@@ -63,40 +62,40 @@ class Layout extends Component<PropsFromData, LayoutState> {
     })
   }
 
-  setSize() {
-    let sidebar_height = this.sidebar_mount?.offsetHeight || 0
-    let sidebar_width = _.max([window.innerWidth / 4 || 350, 350]) || 350
-    let svg_width = _.min([window.innerWidth - (2 * minSizePanel), 0.5 * window.innerWidth]) || window.innerWidth - (2 * minSizePanel)
+  setSize () {
+    const sidebar_height = this.sidebar_mount?.offsetHeight || 0
+    const sidebar_width = _.max([window.innerWidth / 4 || 350, 350]) || 350
+    const svg_width = _.min([window.innerWidth - (2 * minSizePanel), 0.5 * window.innerWidth]) || window.innerWidth - (2 * minSizePanel)
     this.setState({
       sidebar_height: sidebar_height,
       sidebar_width: sidebar_width,
       svg_width: svg_width,
       ww: window.innerWidth,
-      wh: window.innerHeight,
+      wh: window.innerHeight
     })
   }
 
-  componentWillMount() {
+  componentWillMount () {
     this.setSize()
   }
 
-  componentDidMount() {
+  componentDidMount () {
     window.addEventListener('resize', this.setSize)
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     window.removeEventListener('resize', this.setSize)
   }
 
-  haveEmbeddingsChanged(prevProps: PropsFromData) {
+  haveEmbeddingsChanged (prevProps: PropsFromData) {
     return prevProps.embeddings !== this.props.embeddings || prevProps.embeddings.length !== this.props.embeddings.length
   }
 
   /**
-   * sets the selected datum which causes it to show in the sidebar 
+   * sets the selected datum which causes it to show in the sidebar
    * @param {int} i is the index of the selected datum
    */
-  setSelectedDatum(i: number | null) {
+  setSelectedDatum (i: number | null) {
     if (!this.props.labels) return
     this.setState({
       selected_datum: i,
@@ -104,33 +103,36 @@ class Layout extends Component<PropsFromData, LayoutState> {
     })
   }
 
-
-  updateSearchResultIndices(searchTerm: string) {
+  updateSearchResultIndices (searchTerm: string) {
     if (searchTerm.length < 1) return
-    let searchResults = this.props.searchIndex?.search(searchTerm)
-    let searchResultsCleaned: any = searchResults?.map((result: lunr.Index.Result, i) => [result.ref, i])
+    const searchResults = this.props.searchIndex?.search(searchTerm)
+    const searchResultsCleaned: any = searchResults?.map((result: lunr.Index.Result, i) => [result.ref, i])
     this.setState({
       searchInput: searchTerm,
       searchResultIndices: Object.fromEntries(searchResultsCleaned),
-      selected_datum: null, // empty sidebar
+      selected_datum: null // empty sidebar
     })
   }
 
-  render() {
-    let sidebar_ctx = this.sidebar_ctx
-    let line_height = 1.5
-    let sidebar_style: any = {
+  render () {
+    const sidebar_ctx = this.sidebar_ctx
+    const line_height = 1.5
+    const sidebar_style: any = {
       height: this.state.wh,
-      overflow: 'auto', background: '#222',
-      display: 'flex', flexDirection: 'column',
+      overflow: 'auto',
+      background: '#222',
+      display: 'flex',
+      flexDirection: 'column'
     }
-    let main_style: any = {
-      position: 'inline-block', height: this.state.wh,
-      background: '#111', overflow: 'hidden',
+    const main_style: any = {
+      position: 'inline-block',
+      height: this.state.wh,
+      background: '#111',
+      overflow: 'hidden'
     }
 
     let sidebar_orientation
-    let font_size = 16
+    const font_size = 16
     sidebar_orientation = 'vertical'
 
     const propsForSidebar: PropsForSidebar = {
@@ -138,12 +140,12 @@ class Layout extends Component<PropsFromData, LayoutState> {
       ...this.state,
       setSelectedDatum: this.setSelectedDatum,
       selectCluster: this.selectCluster,
-      sidebar_orientation: sidebar_orientation,
+      sidebar_orientation: sidebar_orientation
     }
 
     // show all coordinates to show in array of array which is more performant
     const allCoordinatesAsArrayFilt = this.props.allCoordinates!
-      .filter(d => this.props.clustersToShow.includes(this.props.labels?.[d.index].label_kmedoids || "")) // only comments of clusters set visible
+      .filter(d => this.props.clustersToShow.includes(this.props.labels?.[d.index].label_kmedoids || '')) // only comments of clusters set visible
       .map(d => [d.x, d.y, d.index])
 
     const propsForProjection: PropsForProjection = {
@@ -217,7 +219,7 @@ class Layout extends Component<PropsFromData, LayoutState> {
       </SplitPane>
     ) : (
         <div style={{ padding: '1rem' }}>Loading layout...</div>
-      )
+    )
   }
 }
 

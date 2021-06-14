@@ -1,8 +1,7 @@
-import { createMuiTheme, responsiveFontSizes, ThemeProvider } from '@material-ui/core/styles';
-import React, { Component } from 'react';
-import './App.css';
-import Data from './Data';
-
+import { createMuiTheme, responsiveFontSizes, ThemeProvider } from '@material-ui/core/styles'
+import React, { Component } from 'react'
+import './App.css'
+import Data from './Data'
 
 const themeForMaterialComponents = responsiveFontSizes(createMuiTheme({
   palette: {
@@ -19,15 +18,15 @@ const themeForMaterialComponents = responsiveFontSizes(createMuiTheme({
     },
     background: {
       paper: '#303030'
-    },
+    }
   },
   overrides: {
     MuiTableRow: {
-      "root": {
-        "&$selected": {
-          "backgroundColor": 'rgba(255, 255, 255, 0.15)',
-          "&:hover": {
-            "backgroundColor": 'rgba(255, 255, 255, 0.05)',
+      root: {
+        '&$selected': {
+          backgroundColor: 'rgba(255, 255, 255, 0.15)',
+          '&:hover': {
+            backgroundColor: 'rgba(255, 255, 255, 0.05)'
           }
         }
       }
@@ -36,7 +35,7 @@ const themeForMaterialComponents = responsiveFontSizes(createMuiTheme({
 }))
 
 class App extends Component {
-  render() {
+  render () {
     return (
       <ThemeProvider theme={themeForMaterialComponents}>
         <Data />

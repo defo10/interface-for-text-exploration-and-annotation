@@ -1,5 +1,4 @@
 
+export default function ClusterChanges ({}) {
 
-export default function ClusterChanges({}) {
-    
 }

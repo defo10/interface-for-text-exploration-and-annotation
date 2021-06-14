@@ -1,4 +1,4 @@
-export let about_text = `
+export const about_text = `
 # About UMAP explorer
 
 This is an interactive visualization that uses the [UMAP algorithm](https://github.com/lmcinnes/umap) to cluster hand-drawn digits from the [MNIST dataset](http://yann.lecun.com/exdb/mnist/). I'm sharing it as an example of how to render tens of thousands of images mapped to data points using the [three.js](https://threejs.org/) library. The code is available [on github](https://github.com/GrantCuster/umap-explorer) and can be adapted or used as a reference for doing similar visualizations with different datasets or algorithms. If you do use it or have questions please let me know at [grantcuster@gmail.com](mailto:grantcuster+umap@gmail.com) or [on Twitter](https://twitter.com/grantcuster).

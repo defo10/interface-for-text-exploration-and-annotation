@@ -6,7 +6,6 @@ import { DataPoint } from '../../Data'
 import { PropsForSidebar } from '../../Sidebar'
 import ClusterChangeCommentDialog from './ClusterChangeCommentDialog'
 
-
 export type CommentProps = {
     /** the datapoint to show */
     d: DataPoint
@@ -19,30 +18,30 @@ export type CommentProps = {
 } & PropsForSidebar
 
 const useStyles = makeStyles(theme => ({
-    inline: {
-        display: 'inline',
-    },
-    // secondary list actions are positioned absolutely in material-ui
-    // this style is applied to the other (!) elements if secondary
-    // action is used
-    secondaryAction: {
-        paddingRight: '80px'
-    },
+  inline: {
+    display: 'inline'
+  },
+  // secondary list actions are positioned absolutely in material-ui
+  // this style is applied to the other (!) elements if secondary
+  // action is used
+  secondaryAction: {
+    paddingRight: '80px'
+  }
 }))
 
-export default function ListItemComment(props: CommentProps) {
-    const classes = useStyles()
-    const [showClusterChangeDialog, setShowClusterChangeDialog] = useState(false)
+export default function ListItemComment (props: CommentProps) {
+  const classes = useStyles()
+  const [showClusterChangeDialog, setShowClusterChangeDialog] = useState(false)
 
-    const showPoint = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        props.setHoveredCommentCoordinate(props.i)
-    }
+  const showPoint = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    props.setHoveredCommentCoordinate(props.i)
+  }
 
-    const hidePoint = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        props.setHoveredCommentCoordinate(null)
-    }
+  const hidePoint = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    props.setHoveredCommentCoordinate(null)
+  }
 
-    return (
+  return (
         <>
             <ListItem key={props.d.i} classes={{ secondaryAction: classes.secondaryAction }}>
                 <ListItemText
@@ -55,7 +54,7 @@ export default function ListItemComment(props: CommentProps) {
                                 component="span"
                                 variant="body2"
                                 className={classes.inline}
-                                style={{wordBreak: 'break-word'}}
+                                style={{ wordBreak: 'break-word' }}
                             >
                                 {`${props.d.publishedAt} - `}
                             </Typography>
@@ -63,7 +62,7 @@ export default function ListItemComment(props: CommentProps) {
                                 component="span"
                                 variant="body2"
                                 color="textPrimary"
-                                style={{wordBreak: 'break-word'}}
+                                style={{ wordBreak: 'break-word' }}
                             >
                                 {props.d.cleaned}
                             </Typography>
@@ -79,12 +78,12 @@ export default function ListItemComment(props: CommentProps) {
                 {...props}
                 open={showClusterChangeDialog}
                 onMoveCluster={(clusterSelected) => {
-                    setShowClusterChangeDialog(false)
-                    props.onMoveCluster(clusterSelected, props.i)
+                  setShowClusterChangeDialog(false)
+                  props.onMoveCluster(clusterSelected, props.i)
                 }}
                 i={props.i}
                 data={props.data}
             />
         </>
-    )
+  )
 }
