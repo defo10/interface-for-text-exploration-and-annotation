@@ -1,6 +1,6 @@
 # Interactive Visualization Interface for Text Exploration and Annotation
 
-This project was created for my bachelor thesis. It builds on top of the (UMAP Explorer)[https://github.com/GrantCuster/umap-explorer] and was used as a prototype to elicit explanation needs of users. To find out more, check out the (thesis)[thesis/thesis_main.pdf].
+This project was created for my bachelor thesis. It builds on top of the [UMAP Explorer](https://github.com/GrantCuster/umap-explorer) and was used as a prototype to elicit explanation needs of users. To find out more, check out the [thesis](thesis/thesis_main.pdf).
 
 ## A rough guide to the code
 
