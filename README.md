@@ -1,6 +1,6 @@
 # Interactive Visualization Interface for Text Exploration and Annotation
 
-This project was created for my bachelor thesis. It builds on top of the [UMAP Explorer](https://github.com/GrantCuster/umap-explorer) and was used as a prototype to elicit explanation needs of users. To find out more, check out the [thesis](thesis/thesis_main.pdf).
+This project was created for my bachelor thesis. It builds on top of the [UMAP Explorer](https://github.com/GrantCuster/umap-explorer) by Grant Custer and was used as a prototype to elicit explanation needs of users. To find out more, check out the [thesis](thesis/thesis_main.pdf).
 
 [Click here](https://defo10.github.io/interface-for-text-exploration-and-annotation/) to check out the prototype.
 
@@ -10,9 +10,9 @@ This project was created for my bachelor thesis. It builds on top of the [UMAP E
 
 The demo app is a React app. It uses `src/Data.js` to fetch the data and `src/Layout.js` to handle the layout of the page. The three.js visualization code is in `src/Projection.js`. The data is available as json files in the `public` folder. The data was created using a text processing pipeline developed at HCI lab of FU Berlin.
 
-## Running the demo page
+## Viewing the demo page
 
-Open defo10.github.io/interface-for-text-exploration-and-annotation
+Open [defo10.github.io/interface-for-text-exploration-and-annotation](defo10.github.io/interface-for-text-exploration-and-annotation)
 
 ## Running the app locally
 
