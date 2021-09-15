@@ -1,3 +1,5 @@
+// this is the right SideBar, showing details
+// of the cluster selected
 import React from 'react'
 import { createUseStyles } from 'react-jss'
 import { PropsFromData } from './Data'
@@ -29,8 +31,7 @@ export type PropsForSidebar = {
     setSelectedDatum: (newDatumIndex: number | null) => void,
 } & LayoutState & PropsFromData
 
-/** this is the rightern panel */
-export default function Sidebar2 (props: PropsForSidebar) {
+export default function SidebarDetails (props: PropsForSidebar) {
   const classes = useStyles()
 
   return (

@@ -1,7 +1,7 @@
 import { Button, makeStyles, TextField } from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import React, { useState } from 'react'
-import { PropsForSidebar } from '../Sidebar'
+import { PropsForSidebar } from '../../SidebarOverview'
 
 const useStyles = makeStyles((theme) => ({
   horizontalContainer: {

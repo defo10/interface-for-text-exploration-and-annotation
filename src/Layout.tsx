@@ -1,11 +1,13 @@
+// this file builds the layout of the interface
+import lunr from 'lunr'
 import * as _ from 'lodash'
 import React, { Component } from 'react'
 import SplitPane from 'react-split-pane'
 import { PropsFromData } from './Data'
 import Projection, { PropsForProjection } from './ProjectionElements/Projection'
 import ProjectionParameters from './ProjectionElements/ProjectionParameters'
-import Sidebar, { PropsForSidebar } from './Sidebar'
-import Sidebar2 from './Sidebar2'
+import SidebarOverview, { PropsForSidebar } from './SidebarOverview'
+import SidebarDetails from './SidebarDetails'
 
 const minSizePanel = 350
 
@@ -31,7 +33,7 @@ class Layout extends Component<PropsFromData, LayoutState> {
   sidebar_ctx: any | null
   sidebar_mount: HTMLDivElement | null = null
 
-  constructor (props: PropsFromData) {
+  constructor(props: PropsFromData) {
     super(props)
     this.state = {
       ww: null,
@@ -52,7 +54,7 @@ class Layout extends Component<PropsFromData, LayoutState> {
     this.selectCluster = this.selectCluster.bind(this)
   }
 
-  selectCluster (newLabel: string) {
+  selectCluster(newLabel: string) {
     this.setState({
       selectedCluster: newLabel
     })
@@ -62,7 +64,7 @@ class Layout extends Component<PropsFromData, LayoutState> {
     })
   }
 
-  setSize () {
+  setSize() {
     const sidebar_height = this.sidebar_mount?.offsetHeight || 0
     const sidebar_width = _.max([window.innerWidth / 4 || 350, 350]) || 350
     const svg_width = _.min([window.innerWidth - (2 * minSizePanel), 0.5 * window.innerWidth]) || window.innerWidth - (2 * minSizePanel)
@@ -75,19 +77,19 @@ class Layout extends Component<PropsFromData, LayoutState> {
     })
   }
 
-  componentWillMount () {
+  UNSAFE_componentWillMount() {
     this.setSize()
   }
 
-  componentDidMount () {
+  componentDidMount() {
     window.addEventListener('resize', this.setSize)
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     window.removeEventListener('resize', this.setSize)
   }
 
-  haveEmbeddingsChanged (prevProps: PropsFromData) {
+  haveEmbeddingsChanged(prevProps: PropsFromData) {
     return prevProps.embeddings !== this.props.embeddings || prevProps.embeddings.length !== this.props.embeddings.length
   }
 
@@ -95,7 +97,7 @@ class Layout extends Component<PropsFromData, LayoutState> {
    * sets the selected datum which causes it to show in the sidebar
    * @param {int} i is the index of the selected datum
    */
-  setSelectedDatum (i: number | null) {
+  setSelectedDatum(i: number | null) {
     if (!this.props.labels) return
     this.setState({
       selected_datum: i,
@@ -103,7 +105,7 @@ class Layout extends Component<PropsFromData, LayoutState> {
     })
   }
 
-  updateSearchResultIndices (searchTerm: string) {
+  updateSearchResultIndices(searchTerm: string) {
     if (searchTerm.length < 1) return
     const searchResults = this.props.searchIndex?.search(searchTerm)
     const searchResultsCleaned: any = searchResults?.map((result: lunr.Index.Result, i) => [result.ref, i])
@@ -114,9 +116,8 @@ class Layout extends Component<PropsFromData, LayoutState> {
     })
   }
 
-  render () {
+  render() {
     const sidebar_ctx = this.sidebar_ctx
-    const line_height = 1.5
     const sidebar_style: any = {
       height: this.state.wh,
       overflow: 'auto',
@@ -131,9 +132,7 @@ class Layout extends Component<PropsFromData, LayoutState> {
       overflow: 'hidden'
     }
 
-    let sidebar_orientation
-    const font_size = 16
-    sidebar_orientation = 'vertical'
+    const sidebar_orientation = 'vertical'
 
     const propsForSidebar: PropsForSidebar = {
       ...this.props,
@@ -161,7 +160,7 @@ class Layout extends Component<PropsFromData, LayoutState> {
       allCoordinatesAsArray: allCoordinatesAsArrayFilt
     }
 
-    /* code for search bar, add above splitpane
+    /* code for search bar, add above SplitPane
     <div style={general_style}>
         <div style={{ position: 'absolute', zIndex: 10, left: '50%', marginLeft: '-10vw', right: '50%', top: '4vh', width: '30vw' }}>
           <SearchBar
@@ -173,8 +172,8 @@ class Layout extends Component<PropsFromData, LayoutState> {
     </div>
     */
 
-    return this.state.ww! !== null ? (
-      <SplitPane
+    return this.state.ww! !== null
+      ? (<SplitPane
         split="vertical"
         minSize={minSizePanel}
         maxSize={700}
@@ -193,7 +192,7 @@ class Layout extends Component<PropsFromData, LayoutState> {
             this.sidebar_mount = sidebar_mount
           }}
         >
-          <Sidebar {...propsForSidebar} />
+          <SidebarOverview {...propsForSidebar} />
         </div>
         <SplitPane
           split="vertical"
@@ -213,13 +212,11 @@ class Layout extends Component<PropsFromData, LayoutState> {
             <Projection key={this.state.svgKey} {...propsForProjection} />
           </div>
           <div style={sidebar_style}>
-            <Sidebar2 {...propsForSidebar} />
+            <SidebarDetails {...propsForSidebar} />
           </div>
         </SplitPane>
-      </SplitPane>
-    ) : (
-        <div style={{ padding: '1rem' }}>Loading layout...</div>
-    )
+      </SplitPane>)
+      : <div style={{ padding: '1rem' }}>Loading layout...</div>
   }
 }
 

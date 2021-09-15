@@ -1,10 +1,8 @@
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
-import IconButton from '@material-ui/core/IconButton'
-import { Save } from '@material-ui/icons'
-import { createStyles, makeStyles, TextField, Theme, Tooltip } from '@material-ui/core'
-import { PropsForSidebar } from '../../Sidebar'
-import React, { useEffect, useState } from 'react'
+import { makeStyles, TextField, Theme } from '@material-ui/core'
+import { PropsForSidebar } from '../../SidebarOverview'
+import React from 'react'
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

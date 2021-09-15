@@ -1,8 +1,10 @@
+// this is the left sidebar, showing the overview
+// of the clusters
 import React from 'react'
 import { createUseStyles } from 'react-jss'
 import { PropsFromData } from './Data'
 import { LayoutState } from './Layout'
-import ClusterOverview from './SidebarElements/ClusterOverview/ClusterOverview'
+import ClustersOverview from './SidebarElements/ClusterOverview/ClustersOverview'
 
 const buildStyles = createUseStyles({
   sidebarContainerLeft: {
@@ -20,13 +22,13 @@ export type PropsForSidebar = {
   setSelectedDatum: (newDatumIndex: number | null) => void,
 } & LayoutState & PropsFromData
 
-export default function Sidebar (props: PropsForSidebar) {
+export default function SidebarOverview (props: PropsForSidebar) {
   const classes = buildStyles()
 
   return (
     <div className={classes.sidebarContainerLeft}>
       <div style={{ overflow: 'scroll' }}>
-        <ClusterOverview {...props} />
+        <ClustersOverview {...props} />
       </div>
     </div>
   )

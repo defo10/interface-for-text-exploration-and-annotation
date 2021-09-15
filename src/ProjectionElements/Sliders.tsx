@@ -1,3 +1,5 @@
+// this component shows both sliders
+// for the umap parameters
 import Slider from '@material-ui/core/Slider'
 import { makeStyles } from '@material-ui/core/styles'
 import Tooltip from '@material-ui/core/Tooltip'
@@ -57,7 +59,7 @@ const marks_min_dist = [
   }
 ]
 
-export default function SlidersParamter (props: PropsFromData) {
+export default function Sliders (props: PropsFromData) {
   const classes = useStyles()
 
   const numNeighbors = props.coordinatesParameters.numNeighborsParameter

@@ -1,4 +1,5 @@
-import { constants } from 'buffer'
+// this class is responsible for loading all data
+// and parsing it into the right format
 import * as d3 from 'd3'
 import * as _ from 'lodash'
 import lunr from 'lunr'
@@ -192,10 +193,10 @@ export default class Data extends Component<any, State> {
   pushToDataChanged (newData: DataChanged) {
     const alreadyExisting = _.find(this.state.dataChanged, ['i', newData.i])
     const newDataChanged = _.without(this.state.dataChanged, alreadyExisting)
-    if (!(
-      alreadyExisting && alreadyExisting.oldLabel.label_kmedoids == newData.newLabel.label_kmedoids || // if users reverts change, skip
-      !alreadyExisting && newData.oldLabel.label_kmedoids == newData.newLabel.label_kmedoids // if wasnt changed before but has no change either, skip
-    )) newDataChanged.push(newData)
+
+    const userRevertedChange = alreadyExisting && alreadyExisting.oldLabel.label_kmedoids == newData.newLabel.label_kmedoids
+    const noChange = !alreadyExisting && newData.oldLabel.label_kmedoids == newData.newLabel.label_kmedoids
+    if (!userRevertedChange || noChange) newDataChanged.push(newData)
 
     // if new cluster, set clusters
     if (!this.state.clusters[newData.newLabel.label_kmedoids]) {
@@ -505,6 +506,7 @@ export default class Data extends Component<any, State> {
 
       const distances = coordinates.map(
         (coord) => {
+          // eslint-disable-next-line array-callback-return
           if (this.state.labels?.[coord.index].label_kmedoids != label) return
           // is of same cluster:
           const sqrd_eucl_dist = Math.sqrt(Math.pow(coord.x - medoid_pos.x, 2) + Math.pow(coord.y - medoid_pos.y, 2))

@@ -1,3 +1,5 @@
+// this is a component doing all the d3 stuff
+// of the visualization
 import React, { Component } from 'react'
 import * as d3 from 'd3'
 import { Coordinate, PropsFromData } from '../Data'
@@ -31,16 +33,13 @@ class Projection extends Component<PropsForProjection, {}> {
   scaleTransform: any = null
   zoomBehavior: ZoomBehavior<SVGSVGElement, Coordinate> | null = null
   fillOpacity = 0.8
-  hoverColor = 'rgba(245, 124, 0, 1)' // orange kinda
+  hoverColor = 'rgba(245, 124, 0, 1)' // orange
 
   constructor (props: PropsForProjection) {
     super(props)
     this.state = {}
   }
 
-  /**
-   * draws scatter plot
-   */
   async drawScatterPlot () {
     if (!this.ref) return
 
@@ -56,12 +55,12 @@ class Projection extends Component<PropsForProjection, {}> {
     const coordsToShow = allCoordinatesAsArray
 
     const circles = await this.group.selectAll('circle')
-      .data(coordsToShow, ([x, y, index]) => index)
+      .data(coordsToShow, ([,, index]) => index)
       .join(
         enter => enter.append('circle')
-          .attr('id', ([x, y, index]) => index)
-          .attr('cx', ([x, y, index]) => x)
-          .attr('cy', ([x, y, index]) => y)
+          .attr('id', ([,, index]) => index)
+          .attr('cx', ([x]) => x)
+          .attr('cy', ([, y]) => y)
           .attr('fill-opacity', 0.0)
           .call(enter => enter
             .transition()
@@ -74,8 +73,8 @@ class Projection extends Component<PropsForProjection, {}> {
           .call(update => update
             .transition()
             .duration(2000)
-            .attr('cx', ([x, y, index]) => x)
-            .attr('cy', ([x, y, index]) => y)
+            .attr('cx', ([x]) => x)
+            .attr('cy', ([, y]) => y)
           ),
         exit => exit
           .call(text => text.transition()
@@ -144,15 +143,15 @@ class Projection extends Component<PropsForProjection, {}> {
    * to its cluster have distinct colors
    */
   updateColorPoints () {
-    const { selected_datum, labels, allCoordinatesAsArray, clustersToShow } = this.props
+    const { selected_datum, labels, allCoordinatesAsArray } = this.props
     if (!this.svg || !labels || !this.group) return
 
     const coordsToShow = allCoordinatesAsArray
     if (coordsToShow.length === 0) return this.svg.selectAll('circle').remove()
 
     this.group.selectAll('circle')
-      .data(coordsToShow, ([x, y, index]) => index)
-      .attr('fill', ([x, y, index]) => {
+      .data(coordsToShow, ([,, index]) => index)
+      .attr('fill', ([,, index]) => {
         if (index == selected_datum) return 'cyan'
         if (this.props.selectedCluster == labels[index].label_kmedoids) return this.hoverColor // orange kinda
         return 'white'
@@ -161,13 +160,13 @@ class Projection extends Component<PropsForProjection, {}> {
 
   highlightSearchResults () {
     if (!this.svg || !this.group) return
-    const { selected_datum, labels, labelChoice, allCoordinatesAsArray, searchResultIndices, clustersToShow } = this.props
+    const { allCoordinatesAsArray, searchResultIndices } = this.props
     const coordsToShow = allCoordinatesAsArray
     if (coordsToShow.length === 0) return this.group.selectAll('circle').remove()
 
     this.group.selectAll('circle')
-      .data(coordsToShow, ([x, y, index]) => index)
-      .attr('fill', ([x, y, index]) => {
+      .data(coordsToShow, ([,, index]) => index)
+      .attr('fill', ([,, index]) => {
         if (searchResultIndices[index]) return this.hoverColor
         return 'white'
       })
@@ -175,7 +174,7 @@ class Projection extends Component<PropsForProjection, {}> {
 
   /** highlights the comment the user hovers over in the detail pane */
   showHoveredComment () {
-    const { selected_datum, labels, allCoordinatesAsArray, clustersToShow, hoveredCommentCoordinate } = this.props
+    const { labels, allCoordinatesAsArray, hoveredCommentCoordinate } = this.props
     if (!this.svg || !labels || !this.group) return
 
     const coordsToShow = allCoordinatesAsArray
@@ -184,15 +183,15 @@ class Projection extends Component<PropsForProjection, {}> {
     if (hoveredCommentCoordinate) coordsToShow.push([hoveredCommentCoordinate?.x, hoveredCommentCoordinate?.y, hoveredCommentCoordinate?.index])
 
     this.group.selectAll('circle')
-      .data(coordsToShow, ([x, y, index]) => index)
+      .data(coordsToShow, ([,, index]) => index)
       .join(
         enter => enter.append('circle')
           .attr('fill', 'cyan')
           .attr('fill-opacity', '1')
           .attr('r', 1)
-          .attr('id', ([x, y, index]) => index)
-          .attr('cx', ([x, y, index]) => x)
-          .attr('cy', ([x, y, index]) => y)
+          .attr('id', ([,, index]) => index)
+          .attr('cx', ([x]) => x)
+          .attr('cy', ([, y]) => y)
       )
   }
 
@@ -217,15 +216,13 @@ class Projection extends Component<PropsForProjection, {}> {
     if (!this.props.allCoordinatesFull?.[numNeighbors]?.[minDist]) return
 
     const allCoordsOfSelectedCluster = this.props.labels?.filter(
-      (el, i) => (el.label_kmedoids === this.props.selectedCluster))
+      (el) => (el.label_kmedoids === this.props.selectedCluster))
       .map((el, i) => this.props.allCoordinatesFull?.[numNeighbors]?.[minDist]?.[i]!)
 
     const mean_x = _.meanBy(allCoordsOfSelectedCluster, 'x') || 15
     const mean_y = _.meanBy(allCoordsOfSelectedCluster, 'y') || 15
     // TODO max x and max y, min x and min y, then scale factor just like below
     // position where mean point is in the center of viewport
-    const mean_center_x = this.props.width / 2 - mean_x
-    const mean_center_y = this.props.height / 2 - mean_y
     const delta_x = _.maxBy(allCoordsOfSelectedCluster, 'x')?.x || 0 - (_.minBy(allCoordsOfSelectedCluster, 'x')?.x || 0)
     const delta_y = _.maxBy(allCoordsOfSelectedCluster, 'y')?.y || 0 - (_.minBy(allCoordsOfSelectedCluster, 'y')?.y || 0)
     const scaleFactor = Math.min(this.props.width / delta_x, this.props.height / delta_y)
@@ -289,7 +286,9 @@ class Projection extends Component<PropsForProjection, {}> {
   render () {
     const { width, height } = this.props
     return (
-      <svg ref={(ref) => this.ref = ref} width={width} height={height} overflow="hidden"></svg>
+      <svg ref={(ref) => {
+        this.ref = ref
+      }} width={width} height={height} overflow="hidden"></svg>
     )
   }
 }

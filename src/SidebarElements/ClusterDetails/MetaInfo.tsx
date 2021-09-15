@@ -1,8 +1,6 @@
-import { PropsForSidebar } from '../../Sidebar'
-import { Cluster, ClusterInfo, DataPoint } from '../../Data'
+import { PropsForSidebar } from '../../SidebarOverview'
+import { ClusterInfo } from '../../Data'
 import React from 'react'
-import TextField from '@material-ui/core/TextField'
-import NeoMorphCard from './NeoMorphCard'
 import { makeStyles } from '@material-ui/core/styles'
 import { Card, CardContent } from '@material-ui/core'
 

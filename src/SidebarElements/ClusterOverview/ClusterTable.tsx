@@ -1,3 +1,4 @@
+// this component renders the clusters table
 import Checkbox from '@material-ui/core/Checkbox'
 import Paper from '@material-ui/core/Paper'
 import { makeStyles } from '@material-ui/core/styles'
@@ -13,30 +14,22 @@ import Typography from '@material-ui/core/Typography'
 import PropTypes from 'prop-types'
 import React, { useEffect, useState } from 'react'
 import { Cluster } from '../../Data'
-import { PropsForSidebar } from '../../Sidebar'
+import { PropsForSidebar } from '../../SidebarOverview'
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined'
 import { Tooltip } from '@material-ui/core'
 
 type Row = {
-    label: string,
-    size: number,
-    metric: string,
-    sizePrct: string
+  label: string,
+  size: number,
+  metric: string,
+  sizePrct: string
 }
 
 type OrderBy = 'label' | 'size' | 'metric'
 
-type ClusterInfoDict = {
-    [label: string]: {
-        'size': number,
-        'metric': number,
-    }
-}
-
-const labelsAndData = {}
 let rows: Row[] = []
 
-function descendingComparator (a: Row, b: Row, orderBy: OrderBy) {
+function descendingComparator(a: Row, b: Row, orderBy: OrderBy) {
   if (b[orderBy] < a[orderBy]) {
     return -1
   }
@@ -46,13 +39,13 @@ function descendingComparator (a: Row, b: Row, orderBy: OrderBy) {
   return 0
 }
 
-function getComparator (order: string, orderBy: OrderBy) {
+function getComparator(order: string, orderBy: OrderBy) {
   return order === 'desc'
     ? (a: Row, b: Row) => descendingComparator(a, b, orderBy)
     : (a: Row, b: Row) => -descendingComparator(a, b, orderBy)
 }
 
-function stableSort (array: Row[], comparator: (a: Row, b: Row) => number) {
+function stableSort(array: Row[], comparator: (a: Row, b: Row) => number) {
   const stabilizedThis = array.map((el, index) => [el, index])
   stabilizedThis.sort((a: any, b: any) => {
     const order = comparator(a[0], b[0])
@@ -68,7 +61,7 @@ const useTooltipStyles = makeStyles(theme => ({
   }
 }))
 
-function EnhancedTableHead (props: any) {
+function EnhancedTableHead(props: any) {
   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props
   const createSortHandler = (property: string) => (event: any) => {
     onRequestSort(event, property)
@@ -82,48 +75,48 @@ function EnhancedTableHead (props: any) {
   ]
 
   return (
-        <TableHead>
-            <TableRow>
-                <TableCell padding="checkbox">
-                    <Checkbox
-                        indeterminate={numSelected > 0 && numSelected < rowCount}
-                        checked={rowCount > 0 && numSelected === rowCount}
-                        onChange={onSelectAllClick}
-                        inputProps={{ 'aria-label': 'show all clusters' }}
-                    />
-                </TableCell>
-                {headCells.map((headCell) => (
-                    <TableCell
-                        key={headCell.id}
-                        align={headCell.numeric ? 'right' : 'left'}
-                        padding={headCell.disablePadding ? 'none' : 'default'}
-                        sortDirection={orderBy === headCell.id ? order : false}
-                    >
-                        <TableSortLabel
-                            active={orderBy === headCell.id}
-                            direction={orderBy === headCell.id ? order : 'asc'}
-                            onClick={createSortHandler(headCell.id)}
-                        >
-                            {headCell.sublabel && <Tooltip
-                                title={headCell.sublabel}
-                                placement="bottom-end"
-                                classes={{ tooltip: classesTooltip.tootltip }}
-                            >
-                                <InfoOutlinedIcon style={{ marginLeft: '8px', fontSize: '1em' }}/>
-                            </Tooltip>}
-                            <Typography style={{ fontWeight: 600 }}>{headCell.label}</Typography>
-                            {orderBy === headCell.id
-                              ? (
-                                <span className={classes.visuallyHidden}>
-                                    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                                </span>
-                                )
-                              : null}
-                        </TableSortLabel>
-                    </TableCell>
-                ))}
-            </TableRow>
-        </TableHead>
+    <TableHead>
+      <TableRow>
+        <TableCell padding="checkbox">
+          <Checkbox
+            indeterminate={numSelected > 0 && numSelected < rowCount}
+            checked={rowCount > 0 && numSelected === rowCount}
+            onChange={onSelectAllClick}
+            inputProps={{ 'aria-label': 'show all clusters' }}
+          />
+        </TableCell>
+        {headCells.map((headCell) => (
+          <TableCell
+            key={headCell.id}
+            align={headCell.numeric ? 'right' : 'left'}
+            padding={headCell.disablePadding ? 'none' : 'default'}
+            sortDirection={orderBy === headCell.id ? order : false}
+          >
+            <TableSortLabel
+              active={orderBy === headCell.id}
+              direction={orderBy === headCell.id ? order : 'asc'}
+              onClick={createSortHandler(headCell.id)}
+            >
+              {headCell.sublabel && <Tooltip
+                title={headCell.sublabel}
+                placement="bottom-end"
+                classes={{ tooltip: classesTooltip.tootltip }}
+              >
+                <InfoOutlinedIcon style={{ marginLeft: '8px', fontSize: '1em' }} />
+              </Tooltip>}
+              <Typography style={{ fontWeight: 600 }}>{headCell.label}</Typography>
+              {orderBy === headCell.id
+                ? (
+                  <span className={classes.visuallyHidden}>
+                    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                  </span>
+                  )
+                : null}
+            </TableSortLabel>
+          </TableCell>
+        ))}
+      </TableRow>
+    </TableHead>
   )
 }
 
@@ -179,7 +172,7 @@ const useTablePaginationStyles = makeStyles((theme) => ({
 
 }))
 
-function clustersToRows (clusters: Cluster, sumComments: number) {
+function clustersToRows(clusters: Cluster, sumComments: number) {
   const rows: Row[] = []
   for (const label in clusters) {
     const sizePrct = (clusters[label].size * 100 / sumComments).toFixed(1)
@@ -189,7 +182,7 @@ function clustersToRows (clusters: Cluster, sumComments: number) {
 }
 
 type PropsClusterTable = PropsForSidebar
-export default function ClusterTable ({
+export default function ClusterTable({
   labels,
   data,
   dataChanged,
@@ -271,8 +264,6 @@ export default function ClusterTable ({
 
   const isSelected = (name: string) => clustersToShow.indexOf(name) !== -1
 
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage)
-
   const rowsSorted = stableSort(rows, getComparator(order, orderBy))
 
   useEffect(() => {
@@ -280,72 +271,72 @@ export default function ClusterTable ({
   }, [other.clusters, data]) // if clusters change, update rows
 
   return (
-        <div>
-            <Paper className={classes.paper}>
-                <TableContainer>
-                    <Table
-                        style={{ width: '100%', minWidth: 'auto' }}
-                        className={classes.table}
-                        aria-labelledby="tableTitle"
-                        size='medium'
-                        aria-label="cluster table"
+    <div>
+      <Paper className={classes.paper}>
+        <TableContainer>
+          <Table
+            style={{ width: '100%', minWidth: 'auto' }}
+            className={classes.table}
+            aria-labelledby="tableTitle"
+            size='medium'
+            aria-label="cluster table"
+          >
+            <EnhancedTableHead
+              classes={classes}
+              numSelected={clustersToShow.length}
+              order={order}
+              orderBy={orderBy}
+              onSelectAllClick={handleSelectAllClick}
+              onRequestSort={handleRequestSort}
+              rowCount={rows.length}
+            />
+            <TableBody>
+              {rowsSorted
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row: Row, index: number) => {
+                  const isItemSelected = isSelected(row.label)
+                  const labelId = `enhanced-table-checkbox-${index}`
+                  return (
+                    <TableRow
+                      hover
+                      onClick={(event: any) => handleRowClick(event, row.label)}
+                      role="checkbox"
+                      aria-checked={isItemSelected}
+                      tabIndex={-1}
+                      key={row.label}
+                      selected={isItemSelected}
+                      style={selectedCluster === row.label ? { backgroundColor: 'rgba(245, 124, 0, 0.7)' } : {}}
                     >
-                        <EnhancedTableHead
-                            classes={classes}
-                            numSelected={clustersToShow.length}
-                            order={order}
-                            orderBy={orderBy}
-                            onSelectAllClick={handleSelectAllClick}
-                            onRequestSort={handleRequestSort}
-                            rowCount={rows.length}
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          color='secondary'
+                          checked={isItemSelected}
+                          inputProps={{ 'aria-labelledby': labelId }}
+                          onClick={(event) => handleCheckboxClick(event, row.label)}
                         />
-                        <TableBody>
-                            {rowsSorted
-                              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                              .map((row: Row, index: number) => {
-                                const isItemSelected = isSelected(row.label)
-                                const labelId = `enhanced-table-checkbox-${index}`
-                                return (
-                                        <TableRow
-                                            hover
-                                            onClick={(event: any) => handleRowClick(event, row.label)}
-                                            role="checkbox"
-                                            aria-checked={isItemSelected}
-                                            tabIndex={-1}
-                                            key={row.label}
-                                            selected={isItemSelected}
-                                            style={selectedCluster === row.label ? { backgroundColor: 'rgba(245, 124, 0, 0.7)' } : {}}
-                                        >
-                                            <TableCell padding="checkbox">
-                                                <Checkbox
-                                                    color='secondary'
-                                                    checked={isItemSelected}
-                                                    inputProps={{ 'aria-labelledby': labelId }}
-                                                    onClick={(event) => handleCheckboxClick(event, row.label)}
-                                                />
-                                            </TableCell>
-                                            <TableCell component="th" id={labelId} scope="row" padding="none">
-                                                {selectedCluster === row.label ? other.changedClusterName?.changed : row.label}
-                                            </TableCell>
-                                            <TableCell align="right">{`${row.size} (${row.sizePrct})`}</TableCell>
-                                            <TableCell align="right">{row.metric}</TableCell>
-                                        </TableRow>
-                                )
-                              })}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-                <TablePagination
-                    classes={classesTablePagination}
-                    rowsPerPageOptions={[10, 20, 45]}
-                    component="div"
-                    count={rows.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onChangePage={handleChangePage}
-                    onChangeRowsPerPage={handleChangeRowsPerPage}
-                />
-            </Paper>
-        </div>
+                      </TableCell>
+                      <TableCell component="th" id={labelId} scope="row" padding="none">
+                        {selectedCluster === row.label ? other.changedClusterName?.changed : row.label}
+                      </TableCell>
+                      <TableCell align="right">{`${row.size} (${row.sizePrct})`}</TableCell>
+                      <TableCell align="right">{row.metric}</TableCell>
+                    </TableRow>
+                  )
+                })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          classes={classesTablePagination}
+          rowsPerPageOptions={[10, 20, 45]}
+          component="div"
+          count={rows.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onChangePage={handleChangePage}
+          onChangeRowsPerPage={handleChangeRowsPerPage}
+        />
+      </Paper>
+    </div>
   )
 }

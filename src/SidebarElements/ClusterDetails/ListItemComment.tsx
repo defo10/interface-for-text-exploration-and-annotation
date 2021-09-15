@@ -1,9 +1,7 @@
-import { Button, Card, CardActions, CardContent, Divider, ListItem, ListItemSecondaryAction, ListItemText, makeStyles, Typography } from '@material-ui/core'
-import Tooltip from '@material-ui/core/Tooltip'
-import _ from 'lodash'
+import { Button, Divider, ListItem, ListItemSecondaryAction, ListItemText, makeStyles, Typography } from '@material-ui/core'
 import React, { useState } from 'react'
 import { DataPoint } from '../../Data'
-import { PropsForSidebar } from '../../Sidebar'
+import { PropsForSidebar } from '../../SidebarOverview'
 import ClusterChangeCommentDialog from './ClusterChangeCommentDialog'
 
 export type CommentProps = {

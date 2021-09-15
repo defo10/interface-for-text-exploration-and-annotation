@@ -2,15 +2,13 @@ import { Button, Card, CardActions, CardContent, makeStyles } from '@material-ui
 import Tooltip from '@material-ui/core/Tooltip'
 import _ from 'lodash'
 import React, { useState } from 'react'
-import { DataPoint } from '../../Data'
-import { PropsForSidebar } from '../../Sidebar'
+import { PropsForSidebar } from '../../SidebarOverview'
 import ClusterChangeCommentDialog from './ClusterChangeCommentDialog'
 
 /**
  * used inside sidebar to display one comment
  * elem is one data point
  */
-
 export type CommentProps = {
     dense?: boolean,
     /** i the the index of the comment in prop data */

@@ -1,18 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { ChangedClusterName, DataPoint, Label } from '../../Data'
-import { PropsForSidebar } from '../../Sidebar'
-import Separator from '../Separator'
+import { ChangedClusterName, DataPoint } from '../../Data'
+import { PropsForSidebar } from '../../SidebarOverview'
 import ClusterMenu from './ClusterMenu'
-import MetaInfo from './MetaInfo'
 import Comment from './Comment'
-import NeoMorphCard from './NeoMorphCard'
-import { Box, Card, CardContent, ListItem, ListItemSecondaryAction, makeStyles, Typography } from '@material-ui/core'
-import ClusterChangeCommentDialog from './ClusterChangeCommentDialog'
+import { makeStyles, Typography } from '@material-ui/core'
 import _ from 'lodash'
-import { index } from 'd3'
 import List from '@material-ui/core/List'
-import ListItemText from '@material-ui/core/ListItemText'
-import Divider from '@material-ui/core/Divider'
 import ListItemComment from './ListItemComment'
 
 const useStyles = makeStyles(theme => ({
@@ -94,6 +87,7 @@ export default function ClusterDetailsLayout (props: ClusterDetailsLayoutProps) 
      */
   const buildComments = (data: DataPoint[], type: 'normal' | 'added' | 'removed') => {
     return data.map((element, index) => {
+      // eslint-disable-next-line array-callback-return
       if (index > 20) return
       return (
                 <Comment onMoveCluster={onMoveCluster} i={element.i} key={`cluster-peer-${index}`}

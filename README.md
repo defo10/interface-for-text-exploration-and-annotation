@@ -1,10 +1,18 @@
-Code for an interactive [UMAP](https://github.com/lmcinnes/umap) visualization of the MNIST data set. Demo at [https://grantcuster.github.io/umap-explorer/](https://grantcuster.github.io/umap-explorer/). You can read more about the demo in [the about section](https://grantcuster.github.io/umap-explorer/#about).
+# Interactive Visualization Interface for Text Exploration and Annotation
+
+This project was created for my bachelor thesis. It builds on top of the (UMAP Explorer)[https://github.com/GrantCuster/umap-explorer] and was used as a prototype to elicit explanation needs of users. To find out more, check out the (thesis)[thesis/thesis_main.pdf].
 
 ## A rough guide to the code
 
-The demo app is a React app. It uses a `src/Data.js` to fetch the data and `src/Layout.js` to handle the layout of the page. The three.js visualization code is in `src/Projection.js`. The texture atlases are in the public folder as images. I also included the iPython notebook files I used to generate the texture atlases (`making_mnist_images.ipynb`) and to download the UMAP embeddings (`plot_mnist_example.ipynb`).
+![uml class diagram](uml/components.png)
 
-## Running the app
+The demo app is a React app. It uses `src/Data.js` to fetch the data and `src/Layout.js` to handle the layout of the page. The three.js visualization code is in `src/Projection.js`. The data is available as json files in the `public` folder. The data was created using a text processing pipeline developed at HCI lab of FU Berlin.
+
+## Running the demo page
+
+Open defo10.github.io/interface-for-text-exploration-and-annotation
+
+## Running the app locally
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
