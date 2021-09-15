@@ -1,7 +1,7 @@
 {
   "name": "ba",
   "version": "0.5.2",
-  "homepage": "http://dast.xyz/bachelor",
+  "homepage": "https://defo10.github.io/interface-for-text-exploration-and-annotation/",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.2",
