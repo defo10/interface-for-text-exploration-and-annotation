@@ -2,6 +2,8 @@
 
 This project was created for my bachelor thesis. It builds on top of the [UMAP Explorer](https://github.com/GrantCuster/umap-explorer) and was used as a prototype to elicit explanation needs of users. To find out more, check out the [thesis](thesis/thesis_main.pdf).
 
+[Click here](https://defo10.github.io/interface-for-text-exploration-and-annotation/) to check out the prototype.
+
 ## A rough guide to the code
 
 ![uml class diagram](uml/components.png)
