@@ -12,7 +12,7 @@ The demo app is a React app. It uses `src/Data.js` to fetch the data and `src/La
 
 ## Viewing the demo page
 
-Open [defo10.github.io/interface-for-text-exploration-and-annotation](defo10.github.io/interface-for-text-exploration-and-annotation)
+Open [https://defo10.github.io/interface-for-text-exploration-and-annotation/](https://defo10.github.io/interface-for-text-exploration-and-annotation/)
 
 ## Running the app locally
 
