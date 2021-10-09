@@ -8,7 +8,7 @@ This project was created for my bachelor thesis. It builds on top of the [UMAP E
 
 ![uml class diagram](uml/components.png)
 
-The demo app is a React app. It uses `src/Data.js` to fetch the data and `src/Layout.js` to handle the layout of the page. The three.js visualization code is in `src/Projection.js`. The data is available as json files in the `public` folder. The data was created using a text processing pipeline developed at HCI lab of FU Berlin.
+The demo app is a React app. It uses `src/Data.js` to fetch the data and `src/Layout.js` to handle the layout of the page. The three.js visualization code is in `src/Projection.js`. The data is available as json files in the `public` folder. The data was created using a text processing pipeline developed at HCC lab of FU Berlin.
 
 ## Viewing the demo page
 
